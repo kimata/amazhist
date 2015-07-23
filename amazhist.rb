@@ -114,10 +114,10 @@ class Amazhist
         STDERR.puts(e.message)
       end
     end
-    return !html.css("div.pagination-full li.a-last").css("a").empty?
+    return html.css("div.pagination-full li.a-last").css("a").empty?
   end
   
-  def get_item_page(year, page, item_list)
+  def get_item_list_by_page(year, page, item_list)
     # NOTE: for development
     # parse_item_page(nil, item_list)
     @mech.get(hist_url(year, page)) do |page|
@@ -146,8 +146,9 @@ class Amazhist
       STDERR.print "%s Year %d page %d " % [ Color.bold(Color.green("Parsing")), 
                                            year, page ]
       STDERR.flush
-      break if !get_item_page(year, page, item_list)
+      is_last = get_item_list_by_page(year, page, item_list)
       STDERR.puts
+      break if is_last
       page += 1
       sleep 5
     end
