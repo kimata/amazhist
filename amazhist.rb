@@ -166,7 +166,7 @@ amazhist = Amazhist.new({
 
 item_list = []
 (2000..(Date.today.year)).each do |year|
-  item_list.merge(amazhist.get_item_list(year))
+  item_list.concat(amazhist.get_item_list(year))
 end
 
 puts JSON.generate(item_list)
