@@ -1,5 +1,33 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
+# Amazhist written by KIMATA Tetsuya <kimata@green-rabbit.net>
+
+# Amazon の全購入履歴を JSON 形式で取得するスクリプトです．
+#
+# ■ できること
+# 商品について，以下の情報が取得できます．
+# - 商品名
+# - 購入日
+# - 数量
+# - 購入価格
+# - 売り手
+# - 商品 URL
+# - 商品画像 (実行フォルダに img フォルダを作成して中に保存)
+#
+# ■使い方
+# 1. 次の環境変数に，Amazon の ID とパスワードを設定．
+#    - amazon_id
+#    - amazon_pass
+# 2. スクリプトを実行
+#    $ ruby amazhist.rb > amazhist.json
+#    標準エラーに進捗が表示され，全ての取得が完了すると標準出力に
+#    JSON を吐き出します．
+#
+# ■トラブルシュート
+# 何度も実行すると，Amazon から迷惑がられて，画像認証をパスしないと
+# アクセスできなくなります．
+# 「画像認証を要求されたのでリトライします．」と表示された場合は，
+# しばらく時間を空けてください．
 
 require 'term/ansicolor'
 require 'pathname'
