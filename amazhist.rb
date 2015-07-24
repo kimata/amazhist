@@ -37,6 +37,8 @@ require 'date'
 require 'uri'
 require 'json'
 
+# DEBUG = 1
+
 class Color
   extend Term::ANSIColor
 end
@@ -45,6 +47,7 @@ class Amazhist
   AMAZON_URL      = "http://www.amazon.co.jp/"
   HIST_URL_FORMAT = "https://www.amazon.co.jp/gp/css/order-history?" +
     "digitalOrders=1&unifiedOrders=1&orderFilter=year-%d&startIndex=%d"
+  ITEM_URL_FORMAT = "http://www.amazon.co.jp/gp/product/%s/"
 
   def initialize(user_info, img_dir_path)
     @mech = Mechanize.new
@@ -65,11 +68,32 @@ class Amazhist
     return page.form_with(name: "signIn").submit
   end
 
+  def get_item_category(item_id)
+    page = @mech.get(ITEM_URL_FORMAT % [ item_id ])
+    page.encoding = "UTF-8"
+    html = Nokogiri::HTML(page.body.toutf8)
+
+    crumb = html.css("div.a-breadcrumb li")
+    if (crumb.size != 0) then
+      return {
+        category: crumb[0].text.strip,
+        subcategory: crumb[2].text.strip,
+      }
+    else 
+      return {
+        category: "",
+        subcategory: "",
+      }
+    end
+  end
+
   def parse_item_page(html, item_list)
     # NOTE: for development
-    # f = File.open("a.html")
-    # html = Nokogiri::HTML(f)
-    # f.close
+    if (defined? DEBUG) then
+      f = File.open("debug.htm")
+      html = Nokogiri::HTML(f)
+      f.close
+    end
     html.css("div.order").each do |order|
       begin
         date_text = order.css("div.order-info span.value")[0].text.strip
@@ -84,17 +108,26 @@ class Amazhist
             name = $1
             count = $2.to_i
           end
-          price = item.css("div.a-row span.a-color-price").text.gsub(/￥|,/, "").strip
+          price = item.css("div.a-row span.a-color-price").text.gsub(/￥|,/, "").strip.to_i
+
           seller = ""
-          if (item.css("div.a-row")[1].css("a")[0] != nil) then
-            seller = item.css("div.a-row")[1].css("a")[0].text.strip
-          else
-            seller = item.css("div.a-row")[1].text.gsub("販売:", "").strip
+          (1..2).each do |i| 
+            seller_cand = item.css("div.a-row")[i].text
+            next if (!%r|販売:|.match(seller_cand))
+
+            if (item.css("div.a-row")[i].css("a")[0] != nil) then
+              seller = item.css("div.a-row")[i].css("a")[0].text.strip
+            else
+              seller = item.css("div.a-row")[i].text.gsub("販売:", "").strip
+            end
+            break
           end
 
           img_url = item.css("div.item-view-left-col-inner img")[0][:src]
           img_file_name = "%s.%s" % [ id, %r|\.(\w+)$|.match(img_url)[1] ]
           @mech.get(img_url).save_as(@img_dir_path + img_file_name)
+
+          category_info = get_item_category(id)
 
           item_list.push({
                            name: name,
@@ -102,40 +135,43 @@ class Amazhist
                            url: url,
                            count: count,
                            price: price,
+                           category: category_info[:category],
+                           subcategory: category_info[:subcategory],
                            seller: seller,
                            date: date
                          })
         end
         STDERR.print "."
         STDERR.flush
-        # NOTE: for development
-        # exit
       rescue => e
         STDERR.puts(e.message)
       end
     end
+
     return html.css("div.pagination-full li.a-last").css("a").empty?
   end
   
   def get_item_list_by_page(year, page, item_list)
     # NOTE: for development
-    # parse_item_page(nil, item_list)
-    @mech.get(hist_url(year, page)) do |page|
-      2.times do |i|
-        html = Nokogiri::HTML(page.body)
-        if %r|サインイン|.match(html.title) then
-          # 2回目以降は少し待つ
-          if (i != 0) then
-            warn "画像認証を要求されたのでリトライします．"
-            sleep(60) if (i != 0) 
-          end
-          page = login(page)
-          next
-        end
-        return parse_item_page(html, item_list)
-      end
-      raise StandardError.new("ログインに失敗しました．")
+    if (defined? DEBUG) then
+      parse_item_page(nil, item_list)
     end
+
+    page = @mech.get(hist_url(year, page))
+    2.times do |i|
+      html = Nokogiri::HTML(page.body.toutf8)
+      if %r|サインイン|.match(html.title) then
+        # 2回目以降は少し待つ
+        if (i != 0) then
+          warn "画像認証を要求されたのでリトライします．"
+          sleep(60) if (i != 0) 
+        end
+        page = login(page)
+        next
+      end
+      return parse_item_page(html, item_list)
+    end
+    raise StandardError.new("ログインに失敗しました．")
   end
 
   def get_item_list(year)
