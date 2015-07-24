@@ -69,11 +69,16 @@ class Amazhist
   end
 
   def get_item_category(item_id)
-    page = @mech.get(ITEM_URL_FORMAT % [ item_id ])
-    page.encoding = "UTF-8"
-    html = Nokogiri::HTML(page.body.toutf8)
+    crumb = []
+    begin
+      page = @mech.get(ITEM_URL_FORMAT % [ item_id ])
+      page.encoding = "UTF-8"
+      html = Nokogiri::HTML(page.body.toutf8)
+      crumb = html.css("div.a-breadcrumb li")
+    rescue => e
+      STDERR.puts(e.message)
+    end
 
-    crumb = html.css("div.a-breadcrumb li")
     if (crumb.size != 0) then
       return {
         category: crumb[0].text.strip,
@@ -155,6 +160,8 @@ class Amazhist
     # NOTE: for development
     if (defined? DEBUG) then
       parse_item_page(nil, item_list)
+      p item_list
+      exit
     end
 
     page = @mech.get(hist_url(year, page))
