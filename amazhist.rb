@@ -27,9 +27,9 @@
 #    - amazon_pass
 #
 # 2. スクリプトを実行
-#    $ ./amazhist.rb -o amazhist.json -t img
+#    $ ./amazhist.rb -j amazhist.json -t img
 #    引数の意味は以下
-#    - o 履歴情報を保存するファイルのパス
+#    - j 履歴情報を保存する JSON ファイルのパス
 #    - t サムネイル画像を保存するディレクトリのパス
 #
 # ■トラブルシュート
@@ -236,13 +236,10 @@ class Amazhist
   end
 end
 
-require 'optparse'
-params = ARGV.getopts("o:t:")
-
-
-if (params["o"] == nil) then
+params = ARGV.getopts("j:t:")
+if (params["j"] == nil) then
   Amazhist.error("履歴情報を保存するファイルのパスが指定されていません．" + 
-                 "(-o で指定します)")
+                 "(-j で指定します)")
   exit
 end
 if (params["t"] == nil) then
@@ -251,7 +248,7 @@ if (params["t"] == nil) then
   exit
 end
 
-json_file_path = params["o"]
+json_file_path = params["j"]
 img_dir_path = params["t"]
 
 FileUtils.mkdir_p(img_dir_path)

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 # Amazexcel written by KIMATA Tetsuya <kimata@green-rabbit.net>
 
-# Amazhist が生成した JSON から Excel ファイルを生成するスクリプトです．
-# WIN32OLE の機能を使いますので，Windows でのみ実行できます．
+# Amazon の全購入履歴を Excel ファイルに見やすく出力するスクリプトです．
+# amazhist.rb と組み合わせて使用します．
+# WIN32OLE を使用するため，基本的に Windows で実行することを想定しています．
 #
 # ■準備
 #   このスクリプトでは次のライブラリを使っていますので，入っていない場合は
@@ -11,19 +12,23 @@
 #   - Term::ANSIcolor
 #
 # ■使い方
-#   $ ruby amazexcel.rb JSON EXCEL
-#   第一引数に指定された JSON ファイルを読み込み，
-#   第二引数に指定されたファイル名の Excel ファイルを生成します．
-#
+# 1. スクリプトを実行
+#    $ ruby amazexcel.rb -j amazhist.json -t img -o amazhist.xlsx
+#    引数の意味は以下
+#    - j 履歴情報を保存する JSON ファイルのパス (amazhist.rb にて生成したもの)
+#    - t サムネイル画像が保存されているディレクトリのパス (amazhist.rb にて生成したもの)
+#    - o 生成する Excel ファイルのパス
+
 
 require 'date'
 require 'json'
+require 'optparse'
 require 'pathname'
 require 'set'
 require 'term/ansicolor'
 require 'win32ole'
 
-# DEBUG = 1
+DEBUG = 1
 
 class Color
   extend Term::ANSIColor
@@ -684,8 +689,29 @@ class AmazExcel
   end
 end
 
+params = ARGV.getopts("j:t:o:")
+if (params["j"] == nil) then
+  Amazhist.error("履歴情報が保存されたファイルのパスが指定されていません．" +
+                 "(-j で指定します)")
+  exit
+end
+if (params["t"] == nil) then
+  Amazhist.error("サムネイル画像が保存されたディレクトリのパスが指定されていません．" +
+                 "(-t で指定します)")
+  exit
+end
+if (params["o"] == nil) then
+  Amazhist.error("生成する Excel ファイルのパスが指定されていません．" +
+                 "(-o で指定します)")
+  exit
+end
+
+json_file_path = params["j"]
+img_dir_path = params["t"]
+excel_file_path = params["o"]
+
 amazexcel = AmazExcel.new
-amazexcel.conver("amaz.json", "./img", "amazecel.xlsx")
+amazexcel.conver(json_file_path, img_dir_path, excel_file_path)
 
 # Local Variables:
 # coding: utf-8
@@ -693,3 +719,4 @@ amazexcel.conver("amaz.json", "./img", "amazecel.xlsx")
 # tab-width: 4
 # indent-tabs-mode: nil
 # End:
+
