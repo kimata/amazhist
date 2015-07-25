@@ -28,7 +28,7 @@ require 'set'
 require 'term/ansicolor'
 require 'win32ole'
 
-DEBUG = 1
+# DEBUG = 1
 
 class Color
   extend Term::ANSIColor
