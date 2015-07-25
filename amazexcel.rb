@@ -167,7 +167,7 @@ class AmazExcel
       height: 300,
     },
     monthly_stat: {
-      width: 1400,
+      width: 1200,
       height: 360,
     },
     wday_stat: {
@@ -674,6 +674,22 @@ class AmazExcel
       hist_data = open(json_path) {|io| JSON.load(io) }      
       hist_data.sort_by! {|item| Date.strptime(item["date"], "%Y-%m-%d") }
       
+      tmp_hist_data = hist_data
+      hist_data = []
+      (2013..2015).each do |year|
+        (1..12).each do |month|        
+          data = tmp_hist_data.select {|item|
+            date = Date.strptime(item["date"], "%Y-%m-%d")
+            (date.year == year) && (date.month == month)
+          }
+          if (data.size < 2) then
+            hist_data.concat(data)
+          else
+            hist_data.concat(data[(0..rand(1..3))])
+          end
+        end
+      end
+
       book = @excel_app.create_book(5)
 
       hist_data_range_info = create_hist_sheet(book.Sheets[1], hist_data, img_dir)
