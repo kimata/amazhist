@@ -632,8 +632,10 @@ class AmazExcel
 
     yaxis_0.HasTitle = true
     yaxis_0.AxisTitle.Text = "数量"
+    set_font(yaxis_0.AxisTitle, 11)
     yaxis_1.HasTitle = true
     yaxis_1.AxisTitle.Text = "金額"
+    set_font(yaxis_1.AxisTitle, 11)
 
     set_font(chart.ChartTitle, 14)
     set_font(yaxis_0.TickLabels, 11)
