@@ -25,10 +25,12 @@
 # 1. 次の環境変数に，Amazon の ID とパスワードを設定．
 #    - amazon_id
 #    - amazon_pass
+#
 # 2. スクリプトを実行
-#    $ ruby amazhist.rb > amazhist.json
-#    標準エラーに進捗が表示され，全ての取得が完了すると標準出力に
-#    JSON を吐き出します．
+#    $ ./amazhist.rb -o amazhist.json -t img
+#    引数の意味は以下
+#    - o 履歴情報を保存するファイルのパス
+#    - t サムネイル画像を保存するディレクトリのパス
 #
 # ■トラブルシュート
 # 何度も実行すると，Amazon から迷惑がられて，画像認証をパスしないと
@@ -40,6 +42,7 @@ require 'date'
 require 'json'
 require 'mechanize'
 require 'nokogiri'
+require 'optparse'
 require 'pathname'
 require 'term/ansicolor'
 require 'uri'
@@ -67,9 +70,15 @@ class Amazhist
     @img_dir_path = Pathname.new(img_dir_path)
   end
 
-  def warn(message)
+  def self.error(message)
     STDERR.puts
-    STDERR.puts "[%s] %s" % [ Color.bold(Color.red("WARN")), message ]
+    STDERR.puts "[%s] %s" % [ Color.bold(Color.red("ERROR")), message ]
+    exit
+  end
+
+  def self.warn(message)
+    STDERR.puts
+    STDERR.puts "[%s] %s" % [ Color.bold(Color.yellow("WARN")), message ]
   end
 
   def hist_url(year, page)
@@ -189,17 +198,22 @@ class Amazhist
 
     page = @mech.get(hist_url(year, page))
     2.times do |i|
-      html = Nokogiri::HTML(page.body.toutf8)
-      if %r|サインイン|.match(html.title) then
+      # html = Nokogiri::HTML(page.body.toutf8)
+      if %r|サインイン|.match(page.title) then
+        html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
+        if !%r|画像に表示されている文字|.match(html.css("#ap_captcha_title").text) then
+          error("ID もしくはパスワードが異なります．")
+        end
         # 2回目以降は少し待つ
         if (i != 0) then
-          warn "画像認証を要求されたのでリトライします．"
-          sleep(60) if (i != 0) 
+          sleep_time = 300
+          warn("画像認証を要求されたので %d 分後にリトライします．" % [ sleep_time / 60 ])
+          sleep(sleep_time) if (i != 0) 
         end
         page = login(page)
         next
       end
-      return parse_item_page(html, item_list)
+      return parse_item_page(page, item_list)
     end
     raise StandardError.new("ログインに失敗しました．")
   end
@@ -222,21 +236,41 @@ class Amazhist
   end
 end
 
-IMG_PATH = './img'
+require 'optparse'
+params = ARGV.getopts("o:t:")
 
-FileUtils.mkdir_p(IMG_PATH)
+
+if (params["o"] == nil) then
+  Amazhist.error("履歴情報を保存するファイルのパスが指定されていません．" + 
+                 "(-o で指定します)")
+  exit
+end
+if (params["t"] == nil) then
+  Amazhist.error("サムネイル画像を保存するディレクトリのパスが指定されていません．" + 
+                 "(-t で指定します)")
+  exit
+end
+
+json_file_path = params["o"]
+img_dir_path = params["t"]
+
+FileUtils.mkdir_p(img_dir_path)
 amazhist = Amazhist.new({
                           id: ENV["amazon_id"], 	# Amazon の ID
                           pass: ENV["amazon_pass"],	# Amazon の パスワード
                         },
-                        IMG_PATH)
+                        img_dir_path)
 
 item_list = []
 (2000..(Date.today.year)).each do |year|
   item_list.concat(amazhist.get_item_list(year))
 end
 
-puts JSON.generate(item_list)
+File.open(json_file_path, "w") do |file|
+  file.puts JSON.generate(item_list)
+end
+
+STDERR.puts Color.bold(Color.blue("Writing output file")) 
 
 # Local Variables:
 # coding: utf-8
