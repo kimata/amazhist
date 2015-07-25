@@ -110,7 +110,7 @@ class Amazhist
           subcategory: crumb[2].text.strip,
         }
       rescue => e
-        STDERR.puts(e.backtrace)
+        STDERR.puts(e.backtrace[0..4])
         sleep(RETRY_WAIT_SEC)
       end
     end
@@ -148,7 +148,8 @@ class Amazhist
             count = $2.to_i
           end
           price_str = item.css("div.a-row span.a-color-price").text.gsub(/¥|,/, "").strip
-          price = %r|\d+|.match(price_str)[0].to_i
+          # NOTE: 「price」は数量分の値段とする
+          price = %r|\d+|.match(price_str)[0].to_i * count
 
           seller = ""
           (1..2).each do |i| 
