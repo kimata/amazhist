@@ -14,6 +14,13 @@
 # - 商品 URL
 # - 商品画像 (実行フォルダに img フォルダを作成して中に保存)
 #
+# ■準備
+#   このスクリプトでは次のライブラリを使っていますので，入っていない場合は
+#   インストールしておいてください．
+#   - Term::ANSIcolor
+#   - Nokogiri
+#   - Mechanize
+#
 # ■使い方
 # 1. 次の環境変数に，Amazon の ID とパスワードを設定．
 #    - amazon_id
@@ -29,13 +36,13 @@
 # 「画像認証を要求されたのでリトライします．」と表示された場合は，
 # しばらく時間を空けてください．
 
-require 'term/ansicolor'
-require 'pathname'
-require 'nokogiri'
-require 'mechanize'
 require 'date'
-require 'uri'
 require 'json'
+require 'mechanize'
+require 'nokogiri'
+require 'pathname'
+require 'term/ansicolor'
+require 'uri'
 
 # DEBUG = 1
 

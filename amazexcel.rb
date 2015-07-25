@@ -6,9 +6,9 @@
 # WIN32OLE の機能を使いますので，Windows でのみ実行できます．
 #
 # ■準備
-#   このスクリプトでは Term::ANSIcolor を使っていますので，入っていない場合は
+#   このスクリプトでは次のライブラリを使っていますので，入っていない場合は
 #   インストールしておいてください．
-#   > gem install term-ansicolor
+#   - Term::ANSIcolor
 #
 # ■使い方
 #   $ ruby amazexcel.rb JSON EXCEL
@@ -16,12 +16,11 @@
 #   第二引数に指定されたファイル名の Excel ファイルを生成します．
 #
 
-require 'term/ansicolor'
-require 'json'
-require 'set'
 require 'date'
+require 'json'
 require 'pathname'
-
+require 'set'
+require 'term/ansicolor'
 require 'win32ole'
 
 # DEBUG = 1
@@ -388,7 +387,7 @@ class AmazExcel
                        HIST_HEADER[:col][:image][:pos],
                        img_path.to_s)
       else
-        STDERR.print puts item["id"]
+        STDERR.print item["id"]
       end
       STDERR.print "."
       STDERR.flush
