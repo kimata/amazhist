@@ -123,13 +123,16 @@ class Amazhist
     }
   end
 
-  def parse_item_page(html, item_list)
+  def parse_item_page(page, item_list)
+    html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
+    
     # NOTE: for development
     if (defined? DEBUG) then
       f = File.open("debug.htm")
       html = Nokogiri::HTML(f)
       f.close
     end
+
     html.css("div.order").each do |order|
       begin
         date_text = order.css("div.order-info span.value")[0].text.strip
