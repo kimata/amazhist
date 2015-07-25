@@ -47,13 +47,20 @@ class Amazhist
   AMAZON_URL      = "http://www.amazon.co.jp/"
   HIST_URL_FORMAT = "https://www.amazon.co.jp/gp/css/order-history?" +
     "digitalOrders=1&unifiedOrders=1&orderFilter=year-%d&startIndex=%d"
-  ITEM_URL_FORMAT = "http://www.amazon.co.jp/gp/product/%s/"
+  ITEM_URL_FORMAT = "http://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0"
+  CATEGORY_RETRY  = 5
+  RETRY_WAIT_SEC  = 5
 
   def initialize(user_info, img_dir_path)
     @mech = Mechanize.new
     @mech.user_agent_alias = "Windows Chrome"
     @user_info = user_info
     @img_dir_path = Pathname.new(img_dir_path)
+  end
+
+  def warn(message)
+    STDERR.puts
+    STDERR.puts "[%s] %s" % [ Color.bold(Color.red("WARN")), message ]
   end
 
   def hist_url(year, page)
@@ -69,27 +76,33 @@ class Amazhist
   end
 
   def get_item_category(item_id)
-    crumb = []
-    begin
-      page = @mech.get(ITEM_URL_FORMAT % [ item_id ])
-      page.encoding = "UTF-8"
-      html = Nokogiri::HTML(page.body.toutf8)
-      crumb = html.css("div.a-breadcrumb li")
-    rescue => e
-      STDERR.puts(e.message)
+    (0...CATEGORY_RETRY).each do
+      begin
+        page = @mech.get(ITEM_URL_FORMAT % [ item_id ])
+        html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
+        crumb = html.css("div.a-breadcrumb li")
+
+        if (crumb.size == 0) then
+          sleep(RETRY_WAIT_SEC)
+          next
+        end        
+
+        return {
+          category: crumb[0].text.strip,
+          subcategory: crumb[2].text.strip,
+        }
+      rescue => e
+        STDERR.puts(e.backtrace)
+        sleep(RETRY_WAIT_SEC)
+      end
     end
 
-    if (crumb.size != 0) then
-      return {
-        category: crumb[0].text.strip,
-        subcategory: crumb[2].text.strip,
-      }
-    else 
-      return {
-        category: "",
-        subcategory: "",
-      }
-    end
+    warn("category is NOT determined: %s" % [ item_id ])    
+
+    return {
+      category: "",
+      subcategory: "",
+    }
   end
 
   def parse_item_page(html, item_list)
@@ -113,7 +126,8 @@ class Amazhist
             name = $1
             count = $2.to_i
           end
-          price = item.css("div.a-row span.a-color-price").text.gsub(/￥|,/, "").strip.to_i
+          price_str = item.css("div.a-row span.a-color-price").text.gsub(/¥|,/, "").strip
+          price = %r|\d+|.match(price_str)[0].to_i
 
           seller = ""
           (1..2).each do |i| 
@@ -149,7 +163,7 @@ class Amazhist
         STDERR.print "."
         STDERR.flush
       rescue => e
-        STDERR.puts(e.message)
+        warn(e.message)    
       end
     end
 

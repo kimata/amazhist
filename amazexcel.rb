@@ -19,11 +19,12 @@
 require 'term/ansicolor'
 require 'json'
 require 'set'
+require 'date'
 require 'pathname'
 
 require 'win32ole'
 
-DEBUG = 1
+# DEBUG = 1
 
 class Color
   extend Term::ANSIColor
@@ -68,11 +69,15 @@ end
 class AmazExcel
   SHEET_NAME = {
     hist_data: "購入履歴一覧",
-    category_stat: "カテゴリ別集計",
+    category_stat: "【集計】カテゴリ別",
+    yearly_stat: "【集計】購入年別",
+    monthly_stat: "【集計】購入月別",
+    wday_stat: "【集計】曜日別",
   }
   HIST_HEADER = {
     row: {
       pos: 2,
+      height: 50,
     },
     col: {
       date:	{
@@ -90,6 +95,7 @@ class AmazExcel
       },
       count: {
         label: "数量",      	pos: 5,
+        format: %|0_ |,
         width: 8,
       },
       price: {
@@ -98,9 +104,11 @@ class AmazExcel
       },
       category: {
         label: "カテゴリ",    	pos: 7,
+        width: 15,
       },
       subcategory: {
         label: "サブカテゴリ", 	pos: 8,
+        width: 22,
       },
       seller: {
         label: "売り手",    	pos: 9,
@@ -120,21 +128,49 @@ class AmazExcel
   }
   STAT_HEADER = {
     row: {
-      pos: 2,
+      pos: 2,      height: 20,
     },
     col: {
       target:	{
         label: nil,   			pos: 2, 
-      },
-      price: {
-        label: "合計価格", 		pos: 3, 
+        format: %|@|
       },
       count: {
-        label: "合計数量", 		pos: 4, 
+        label: "合計数量", 		pos: 3, 
+        width: 12,
+        format: %|0_ |,
+      },
+      price: {
+        label: "合計価格", 		pos: 4, 
+        format: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* "-"_ ;_ @_ |, # NOTE: 末尾の空白要
+        width: 17,
       },
     },
   }
-
+  TARGET_LABEL = {
+    category_stat: HIST_HEADER[:col][:category][:label],
+    yearly_stat: "年",
+    monthly_stat: "年月",
+    wday_stat: "曜日",
+  }
+  GRAPH_CONFIG = {
+    category_stat: {
+      width: 1000,
+      height: 420,
+    },
+    yearly_stat: {
+      width: 600,
+      height: 300,
+    },
+    monthly_stat: {
+      width: 1400,
+      height: 360,
+    },
+    wday_stat: {
+      width: 500,
+      height: 300,
+    },
+  }
   IMG_SPACEING = 2
 
   def initialize
@@ -145,14 +181,33 @@ class AmazExcel
     return r | (g << 8) | (b << 16)
   end
 
-  def get_first_col(header)
+  def set_font(target, size)
+    target.Font.Name = "メイリオ"
+    target.Font.Size = size
+  end
+
+  def get_first_col_id(header)
+    first_col_id = nil
     col = 100
-    HIST_HEADER[:col].each do |col_id, cell_config|
+    header[:col].each do |col_id, cell_config|
       if (cell_config[:pos] < col) then
-       col =  cell_config[:pos]
+        col =  cell_config[:pos]
+        first_col_id = col_id
       end
     end
-    return col
+    return first_col_id
+  end
+
+  def get_last_col_id(header)
+    last_col_id = nil
+    col = 0
+    header[:col].each do |col_id, cell_config|
+      if (cell_config[:pos] > col) then
+        col =  cell_config[:pos]
+        last_col_id = col_id
+      end
+    end
+    return last_col_id
   end
 
   def get_table_range(sheet, header)
@@ -167,18 +222,15 @@ class AmazExcel
     end
   end
 
-  def get_data_col_range(sheet, header, col_id)
-    if (header == HIST_HEADER) then
-      table_range = get_table_range(sheet, header)
-      last_row = table_range.Rows(table_range.Rows.Count).Row
+  def get_data_col_range(sheet, header, col_id=nil)
+    table_range = get_table_range(sheet, header)
+    col_id = get_first_col_id(header) if col_id == nil
+    last_row = table_range.Rows(table_range.Rows.Count).Row
 
-      return sheet.Range(sheet.Cells[HIST_HEADER[:row][:pos]+1,
-                                     HIST_HEADER[:col][col_id][:pos]],
-                         sheet.Cells[last_row,
-                                     HIST_HEADER[:col][col_id][:pos]])
-    else
-      
-    end
+    return sheet.Range(sheet.Cells[header[:row][:pos]+1,
+                                   header[:col][col_id][:pos]],
+                       sheet.Cells[last_row,
+                                   header[:col][col_id][:pos]])
   end
 
   def get_data_range(sheet, header)
@@ -222,8 +274,8 @@ class AmazExcel
     shape.Placement = ExcelConst::XlMoveAndSize
   end
 
-  def insert_header(sheet, header, label_map)
-    STDERR.print Color.green("    Insert Header ")
+  def insert_header(sheet, header, label_map={})
+    STDERR.print Color.green("    - Insert Header ")
     STDERR.flush
 
     header[:col].each_value do |cell_config|
@@ -239,7 +291,7 @@ class AmazExcel
   end
 
   def insert_hist_data(sheet, hist_data)
-    STDERR.print Color.green("    Insert Data ")
+    STDERR.print Color.green("    - Insert Data ")
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
@@ -275,22 +327,18 @@ class AmazExcel
     STDERR.puts
   end
 
-  def format_hist_data(sheet)
-    STDERR.print Color.green("    Format Data ")
+  def format_data(sheet, sheet_name, header)
+    STDERR.print Color.green("    - Format Data ")
     STDERR.flush
 
-    sheet.Name = SHEET_NAME[:hist_data]
+    sheet.Name = sheet_name
     sheet.Cells.Interior.ColorIndex = 2
     sheet.Cells.Font.Name = "メイリオ"
-    sheet.Columns.AutoFit
 
-    get_data_col_range(sheet, HIST_HEADER, :name).RowHeight = 50
+    get_data_col_range(sheet, header).RowHeight = header[:row][:height]
 
-    HIST_HEADER[:col].each do |col_id, cell_config|
-      col_range = sheet.Columns(HIST_HEADER[:col][col_id][:pos])
-      if (cell_config.has_key?(:width)) then
-        col_range.ColumnWidth = cell_config[:width]
-      end
+    header[:col].each do |col_id, cell_config|
+      col_range = sheet.Columns(header[:col][col_id][:pos])
       if (cell_config.has_key?(:format)) then
         col_range.NumberFormatLocal = cell_config[:format]
       end
@@ -305,11 +353,20 @@ class AmazExcel
         col_range.AddIndent = true
       end
     end
+
+    sheet.Columns.AutoFit
+
+    header[:col].each do |col_id, cell_config|
+      col_range = sheet.Columns(header[:col][col_id][:pos])
+      if (cell_config.has_key?(:width)) then
+        col_range.ColumnWidth = cell_config[:width]
+      end
+    end
     STDERR.puts
   end
 
   def set_border(sheet, header)
-    STDERR.print Color.green("    Set Border ")
+    STDERR.print Color.green("    - Set Border ")
     STDERR.flush
     data_range = get_data_range(sheet, header)
     data_range.Borders(ExcelConst::XlInsideHorizontal).LineStyle = ExcelConst::XlContinuous
@@ -318,7 +375,7 @@ class AmazExcel
   end
 
   def insert_hist_image(sheet, hist_data, img_dir)
-    STDERR.print Color.green("    Insert Image ")
+    STDERR.print Color.green("    - Insert Image ")
     STDERR.flush
     
     hist_data.each_with_index do |item, i|
@@ -331,7 +388,7 @@ class AmazExcel
                        HIST_HEADER[:col][:image][:pos],
                        img_path.to_s)
       else
-        puts item["id"]
+        STDERR.print puts item["id"]
       end
       STDERR.print "."
       STDERR.flush
@@ -346,9 +403,10 @@ class AmazExcel
     STDERR.puts
   end
 
-  def config_hist_view(sheet)
-    get_table_range(sheet, HIST_HEADER).AutoFilter
-    sheet.Cells[HIST_HEADER[:row][:pos]+1, get_first_col()].Select
+  def config_view(sheet, header)
+    get_table_range(sheet, header).AutoFilter
+    sheet.Cells[header[:row][:pos]+1,
+                header[:col][get_first_col_id(header)][:pos]].Select
     @excel_app.freeze_pane
   end
 
@@ -357,61 +415,265 @@ class AmazExcel
     STDERR.flush
 
     insert_hist_data(sheet, hist_data)
-    format_hist_data(sheet)
+    format_data(sheet, SHEET_NAME[:hist_data], HIST_HEADER)
     set_border(sheet, HIST_HEADER)
-    insert__header(sheet, HIST_HEADER)
+    insert_header(sheet, HIST_HEADER)
     insert_hist_image(sheet, hist_data, img_dir)
-    config_hist_view(sheet)
+    config_view(sheet, HIST_HEADER)
+    
+    data_range = get_data_range(sheet, HIST_HEADER)
+    
+    return {
+      start_row: data_range.Rows(1).Row,
+      last_row: data_range.Rows(data_range.Rows.Count).Row,
+      start_col: data_range.Columns(1).Column,
+      last_col: data_range.Columns(data_range.Columns.Count).Column,
+    }
   end
 
-  def insert_category_data(sheet, hist_data)
+  def insert_stat_data(sheet, param, hist_data_range_info)
+    target_range = sheet.Cells[param[:row], STAT_HEADER[:col][:target][:pos]]
+    # NOTE: 値を入力した場合に，数値に変換されるのを防止
+    target_range.NumberFormatLocal = "@"
+    target_range.Value = param[:target]
+
+    count_range = sheet.Cells[param[:row], STAT_HEADER[:col][:count][:pos]]
+    count_range.FormulaR1C1 = param[:count_formula]
+
+    price_range = sheet.Cells[param[:row], STAT_HEADER[:col][:price][:pos]]
+    price_range.FormulaR1C1 = param[:price_formula]
+  end
+
+  def insert_category_stat_data(sheet, hist_data, hist_data_range_info)
     category_set = Set.new
     
     hist_data.each do |item|
       category_set.add(item["category"])
     end
+    category_set.delete("")
 
     category_set.sort.each_with_index do |category, i|
-      cell_range = sheet.Cells[STAT_HEADER[:row][:pos] + 1 + i,
-                               STAT_HEADER[:col][:target][:pos]]
-      cell_range.Value = category
+      count_formula = %|=COUNTIF(%s!R%dC%d:R%dC%d,RC[-1])| %
+        [
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:category][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:category][:pos],
+        ]
+      price_formula = %|=SUMIF(%s!R%dC%d:R%dC%d,RC[-2],%s!R%dC%d:R%dC%d)| %
+        [
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:category][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:category][:pos],
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+        ]
+
+      insert_stat_data(sheet,
+                       {
+                         target: category,
+                         row: STAT_HEADER[:row][:pos] + 1 + i,
+                         count_formula: count_formula,
+                         price_formula: price_formula,
+                       },
+                       hist_data_range_info)
     end
-    
   end
 
-  def create_category_stat_sheet(sheet, hist_data)
-    insert_category_data(sheet, hist_data)
-    insert_header(sheet, STAT_HEADER, { nil: HIST_HEADER[:col][:category][:label] }) 
+  def insert_yearly_stat_data(sheet, hist_data, hist_data_range_info)
+    year_start = Date.strptime(hist_data[0]["date"], "%Y-%m-%d").year
+    year_end = Date.strptime(hist_data[-1]["date"], "%Y-%m-%d").year
+
+    (year_start..year_end).each_with_index do |year, i|
+      count_formula = %|=SUMPRODUCT(--(YEAR(%s!R%dC%d:R%dC%d)=RC[-1]))| %
+        [
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+        ]
+
+      price_formula = %|=SUMPRODUCT((YEAR(%s!R%dC%d:R%dC%d)=RC[-2])*%s!R%dC%d:R%dC%d)| %
+        [
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+        ]
+
+      insert_stat_data(sheet,
+                       {
+                         target: year,
+                         row: STAT_HEADER[:row][:pos] + 1 + i,
+                         count_formula: count_formula,
+                         price_formula: price_formula,
+                       },
+                       hist_data_range_info)
+    end
+  end
+
+  def insert_monthly_stat_data(sheet, hist_data, hist_data_range_info)
+    date_start = Date.strptime(hist_data[0]["date"], "%Y-%m-%d")
+    date_end = Date.strptime(hist_data[-1]["date"], "%Y-%m-%d")
+
+    year_start = date_start.year
+    year_end = date_end.year
+    month_start = date_start.month
+    month_end = date_end.month
+
+    i = 0
+    (year_start..year_end).each do |year|
+      (1..12).each do |month|
+        next if ((year == year_start) && (month < month_start))
+        next if ((year == year_end) && (month > month_end))
+
+        year_month = "%02d年%02d月" % [ year, month ]
+
+        count_formula = %|=SUMPRODUCT(--(TEXT(%s!R%dC%d:R%dC%d,"yyyy年mm月")="%s"))| %
+          [
+           SHEET_NAME[:hist_data],
+           hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+           hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+           year_month,
+          ]
+        price_formula = %|=SUMPRODUCT((TEXT(%s!R%dC%d:R%dC%d,"yyyy年mm月")="%s")*%s!R%dC%d:R%dC%d)| %
+          [
+           SHEET_NAME[:hist_data],
+           hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+           hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+           year_month,
+           SHEET_NAME[:hist_data],
+           hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+           hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+          ]
+
+        insert_stat_data(sheet,
+                         {
+                           target: year_month,
+                           row: STAT_HEADER[:row][:pos] + 1 + i,
+                           count_formula: count_formula,
+                           price_formula: price_formula,
+                         },
+                         hist_data_range_info)
+        i += 1
+      end
+    end
+  end
+
+  def insert_wday_stat_data(sheet, hist_data, hist_data_range_info)
+    year_start = Date.strptime(hist_data[0]["date"], "%Y-%m-%d").year
+    year_end = Date.strptime(hist_data[-1]["date"], "%Y-%m-%d").year
+
+    %w(月 火 水 木 金 土 日).each_with_index do |wday, i|
+      count_formula = %|=SUMPRODUCT(--(WEEKDAY(%s!R%dC%d:R%dC%d,2)=%d))| %
+        [
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+         i + 1,
+        ]
+
+      price_formula = %|=SUMPRODUCT((WEEKDAY(%s!R%dC%d:R%dC%d,2)=%d)*%s!R%dC%d:R%dC%d)| %
+        [
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+         i + 1,
+         SHEET_NAME[:hist_data],
+         hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+         hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+        ]
+
+      insert_stat_data(sheet,
+                       {
+                         target: wday,
+                         row: STAT_HEADER[:row][:pos] + 1 + i,
+                         count_formula: count_formula,
+                         price_formula: price_formula,
+                       },
+                       hist_data_range_info)
+    end
+  end
+
+  def insert_graph(sheet, stat_type)
+    STDERR.print Color.green("    - Insert Graph ")
+    STDERR.flush
+
+    chart_width = GRAPH_CONFIG[stat_type][:width]
+    chart_height = GRAPH_CONFIG[stat_type][:height]
+
+    graph_col = STAT_HEADER[:col][get_last_col_id(STAT_HEADER)][:pos] + 2
+    graph_range = sheet.Cells[STAT_HEADER[:row][:pos], graph_col]
+
+    chart = sheet.ChartObjects.Add(graph_range.Left, graph_range.Top, chart_width, chart_height).Chart
+    chart.SeriesCollection.NewSeries()
+    chart.SeriesCollection.NewSeries()
+    chart.HasTitle = true
+    chart.ChartTitle.Text = sheet.Name
+    chart.HasLegend = true
+
+    series = chart.SeriesCollection(1)
+    series.ChartType = ExcelConst::XlColumnClustered
+    series.XValues = get_data_col_range(sheet, STAT_HEADER, :target)
+    series.Values = get_data_col_range(sheet, STAT_HEADER, :count)
+    series.Name = STAT_HEADER[:col][:count][:label]
+
+    series = chart.SeriesCollection(2)
+    series.ChartType = ExcelConst::XlLine
+    series.XValues = get_data_col_range(sheet, STAT_HEADER, :target)
+    series.Values = get_data_col_range(sheet, STAT_HEADER, :price)
+    series.Name = STAT_HEADER[:col][:price][:label]
+    series.AxisGroup = ExcelConst::XlSecondary
+
+    yaxis_0 = chart.Axes(ExcelConst::XlValue, ExcelConst::XlPrimary)
+    yaxis_1 = chart.Axes(ExcelConst::XlValue, ExcelConst::XlSecondary)
+    xaxis = chart.Axes(ExcelConst::XlCategory, ExcelConst::XlPrimary)
+
+    yaxis_0.HasTitle = true
+    yaxis_0.AxisTitle.Text = "数量"
+    yaxis_1.HasTitle = true
+    yaxis_1.AxisTitle.Text = "金額"
+
+    set_font(chart.ChartTitle, 14)
+    set_font(yaxis_0.TickLabels, 11)
+    set_font(yaxis_1.TickLabels, 11)
+    set_font(xaxis.TickLabels, 11)
+    set_font(chart.Legend, 11)
+
+    STDERR.puts
+  end
+
+  def create_stat_sheet(sheet, stat_type, hist_data, hist_data_range)
+    STDERR.puts Color.bold(Color.green("Create Category Statistics:"))
+    STDERR.flush
+
+    case stat_type
+      when :category_stat; insert_category_stat_data(sheet, hist_data, hist_data_range)
+      when :yearly_stat; insert_yearly_stat_data(sheet, hist_data, hist_data_range)
+      when :monthly_stat; insert_monthly_stat_data(sheet, hist_data, hist_data_range)
+      when :wday_stat; insert_wday_stat_data(sheet, hist_data, hist_data_range)
+    end
+
+    format_data(sheet, SHEET_NAME[stat_type], STAT_HEADER)
+    insert_header(sheet, STAT_HEADER, { nil => TARGET_LABEL[stat_type] }) 
     set_border(sheet, STAT_HEADER)   
-
+    insert_graph(sheet, stat_type)
   end
-
-  def create_yearly_stat_sheet(sheet)
-
-  end
-
-  def create_monthly_stat_sheet(sheet)
-
-  end
-
-  def create_wday_stat_sheet(sheet)
-
-  end
-
 
   def conver(img_dir_path, json_path, excel_path)
     begin
       img_dir = Pathname.new(img_dir_path)
-      hist_data = open(json_path) { |io| JSON.load(io) }      
-      book = @excel_app.create_book(4)
+      hist_data = open(json_path) {|io| JSON.load(io) }      
+      hist_data.sort_by! {|item| Date.strptime(item["date"], "%Y-%m-%d") }
+      
+      book = @excel_app.create_book(5)
 
-      create_category_stat_sheet(book.Sheets[2], hist_data)
+      hist_data_range_info = create_hist_sheet(book.Sheets[1], hist_data, img_dir)
 
-      create_hist_sheet(book.Sheets[1], hist_data, img_dir)
-
-      create_yearly_stat_sheet(book.Sheets[2])
-      create_monthly_stat_sheet(book.Sheets[3])
-      create_wday_stat_sheet(book.Sheets[4])
+      [:category_stat, :yearly_stat, :monthly_stat, :wday_stat].each_with_index do |stat_type, i|
+        create_stat_sheet(book.Sheets[2 + i], stat_type, hist_data, hist_data_range_info)
+      end
 
       @excel_app.save(book, excel_path)
     ensure
