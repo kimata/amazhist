@@ -154,11 +154,11 @@ class AmazExcel
   }
   GRAPH_CONFIG = {
     category_stat: {
-      width: 1000,
+      width: 700,
       height: 420,
     },
     yearly_stat: {
-      width: 600,
+      width: 500,
       height: 300,
     },
     monthly_stat: {
@@ -611,6 +611,7 @@ class AmazExcel
     chart.HasTitle = true
     chart.ChartTitle.Text = sheet.Name
     chart.HasLegend = true
+    chart.Legend.Position = ExcelConst::XlLegendPositionBottom
 
     series = chart.SeriesCollection(1)
     series.ChartType = ExcelConst::XlColumnClustered
@@ -660,7 +661,7 @@ class AmazExcel
     insert_graph(sheet, stat_type)
   end
 
-  def conver(img_dir_path, json_path, excel_path)
+  def conver(json_path, img_dir_path, excel_path)
     begin
       img_dir = Pathname.new(img_dir_path)
       hist_data = open(json_path) {|io| JSON.load(io) }      
@@ -682,7 +683,7 @@ class AmazExcel
 end
 
 amazexcel = AmazExcel.new
-amazexcel.conver("./img", "amaz.json", "amazecel.xlsx")
+amazexcel.conver("amaz.json", "./img", "amazecel.xlsx")
 
 # Local Variables:
 # coding: utf-8
