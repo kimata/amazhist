@@ -115,7 +115,7 @@ class Amazhist
       end
     end
 
-    warn("category is NOT determined: %s" % [ item_id ])    
+    self.class.warn("category is NOT determined: %s" % [ item_id ])    
 
     return {
       category: "",
@@ -181,7 +181,7 @@ class Amazhist
         STDERR.print "."
         STDERR.flush
       rescue => e
-        warn(e.message)    
+        self.class.warn(e.message)    
       end
     end
 
@@ -202,12 +202,12 @@ class Amazhist
       if %r|サインイン|.match(page.title) then
         html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
         if !%r|画像に表示されている文字|.match(html.css("#ap_captcha_title").text) then
-          self.error("ID もしくはパスワードが異なります．")
+          self.class.error("ID もしくはパスワードが異なります．")
         end
         # 2回目以降は少し待つ
         if (i != 0) then
           sleep_time = 300
-          warn("画像認証を要求されたので %d 分後にリトライします．" % [ sleep_time / 60 ])
+          self.class.warn("画像認証を要求されたので %d 分後にリトライします．" % [ sleep_time / 60 ])
           sleep(sleep_time) if (i != 0) 
         end
         page = login(page)
