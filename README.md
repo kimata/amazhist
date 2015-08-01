@@ -1,6 +1,6 @@
 # amazhist
 
-amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出力するスクリプトです．
+amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出力する Ruby スクリプトです．
 
 次のような特徴があります．
 
