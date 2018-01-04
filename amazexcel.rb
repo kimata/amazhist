@@ -381,7 +381,7 @@ class AmazExcel
   def insert_hist_image(sheet, hist_data, img_dir)
     STDERR.print Color.green("    - Insert Image ")
     STDERR.flush
-    
+
     hist_data.each_with_index do |item, i|
       cell_range = sheet.Cells[HIST_HEADER[:row][:pos] + 1 + i,
                                HIST_HEADER[:col][:image][:pos]]
