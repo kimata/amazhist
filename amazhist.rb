@@ -155,6 +155,20 @@ class Amazhist
     return default_category
   end
 
+  def save_img(img_url, img_file_name, name, id)
+    img_file_path = @img_dir_path + img_file_name
+    5.times do |i|
+      @mech.get(img_url).save!(img_file_path)
+      @mech.back()
+
+      return if (File.size?(img_file_path) != nil)
+      sleep(RETRY_WAIT_SEC)
+    end
+
+    self.class.warn('%s (ASIN: %s) の画像を取得できませんでした．' %
+                    [ name , id])
+  end
+
   def parse_order_normal(html, date)
     item_list = []
 
@@ -196,7 +210,7 @@ class Amazhist
 
       if (img_url != nil) then
         img_file_name = '%s.%s' % [ id, %r|\.(\w+)$|.match(img_url)[1] ]
-        @mech.get(img_url).save_as(@img_dir_path + img_file_name)
+        save_img(img_url, img_file_name, name, id)
       end
 
       category_info = get_item_category(id, name)
@@ -251,8 +265,7 @@ class Amazhist
       # NOTE: 一律 img_url_map.values.first でもいいはずだけど自信ないので
       img_url = img_url_map.has_key?(id) ? img_url_map[id] : img_url_map.values.first
       img_file_name = '%s.%s' % [ id, %r|\.(\w+)$|.match(img_url)[1] ]
-      @mech.get(img_url).save_as(@img_dir_path + img_file_name)
-      @mech.back()
+      save_img(img_url, img_file_name)
     else
       self.class.warn('%s (ASIN: %s) の画像を取得できませんでした．' %
                       [ name , id])
