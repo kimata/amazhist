@@ -158,10 +158,9 @@ class Amazhist
   def save_img(img_url, img_file_name, name, id)
     img_file_path = @img_dir_path + img_file_name
     5.times do |i|
+      return if (File.size?(img_file_path) != nil)
       @mech.get(img_url).save!(img_file_path)
       @mech.back()
-
-      return if (File.size?(img_file_path) != nil)
       sleep(RETRY_WAIT_SEC)
     end
 
@@ -265,7 +264,7 @@ class Amazhist
       # NOTE: 一律 img_url_map.values.first でもいいはずだけど自信ないので
       img_url = img_url_map.has_key?(id) ? img_url_map[id] : img_url_map.values.first
       img_file_name = '%s.%s' % [ id, %r|\.(\w+)$|.match(img_url)[1] ]
-      save_img(img_url, img_file_name)
+      save_img(img_url, img_file_name, name, id)
     else
       self.class.warn('%s (ASIN: %s) の画像を取得できませんでした．' %
                       [ name , id])
@@ -339,7 +338,7 @@ class Amazhist
         STDERR.print '.'
         STDERR.flush
       rescue Mechanize::Error => e
-        self.class.warn('URL: %s' % [ e.page.url.to_s ])
+        self.class.warn('URL: %s' % [ e.page.uri.to_s ])
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}|.match(item) }[0])
         sleep 5
