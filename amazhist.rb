@@ -47,7 +47,8 @@ require 'pathname'
 require 'term/ansicolor'
 require 'uri'
 
-# DEBUG = 1
+# TRACE = 1 # 定義すると，取得した Web ページをデバッグ用に保存します
+# DEBUG = 1 # 定義すると，デバッグ用に保存したファイルからページを読み込みます
 
 class Color
   extend Term::ANSIColor
