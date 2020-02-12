@@ -62,12 +62,16 @@ class Amazhist
   ITEM_URL_FORMAT = 'http://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0'
   CATEGORY_RETRY  = 5
   RETRY_WAIT_SEC  = 5
+  COOKIE_DUMP     = 'cookie.txt'
 
   def initialize(user_info, img_dir_path)
     @mech = Mechanize.new
     @mech.user_agent_alias = 'Windows Chrome'
+    @mech.cookie_jar.clear!
     @user_info = user_info
     @img_dir_path = Pathname.new(img_dir_path)
+
+    cookie_load()
   end
 
   def self.error(message)
@@ -79,6 +83,16 @@ class Amazhist
   def self.warn(message)
     STDERR.puts
     STDERR.puts '[%s] %s' % [ Color.bold(Color.yellow('WARN')), message ]
+  end
+
+  def cookie_save()
+    @mech.cookie_jar.save_as(COOKIE_DUMP)
+  end
+
+  def cookie_load()
+    if File.exist?(COOKIE_DUMP) then
+      @mech.cookie_jar.load(COOKIE_DUMP)
+    end
   end
 
   def hist_url(year, page)
