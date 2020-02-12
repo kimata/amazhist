@@ -706,21 +706,24 @@ class AmazExcel
   end
 end
 
+def error(message)
+  STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
+  exit
+end
+
+
 params = ARGV.getopts("j:t:o:")
 if (params["j"] == nil) then
-  Amazhist.error("履歴情報が保存されたファイルのパスが指定されていません．" +
-                 "(-j で指定します)")
-  exit
+  error("履歴情報が保存されたファイルのパスが指定されていません．" +
+        "(-j で指定します)")
 end
 if (params["t"] == nil) then
-  Amazhist.error("サムネイル画像が保存されたディレクトリのパスが指定されていません．" +
-                 "(-t で指定します)")
-  exit
+  error("サムネイル画像が保存されたディレクトリのパスが指定されていません．" +
+        "(-t で指定します)")
 end
 if (params["o"] == nil) then
-  Amazhist.error("生成する Excel ファイルのパスが指定されていません．" +
-                 "(-o で指定します)")
-  exit
+  error("生成する Excel ファイルのパスが指定されていません．" +
+        "(-o で指定します)")
 end
 
 json_file_path = params["j"]
@@ -736,4 +739,3 @@ amazexcel.conver(json_file_path, img_dir_path, excel_file_path)
 # tab-width: 4
 # indent-tabs-mode: nil
 # End:
-
