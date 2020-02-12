@@ -49,7 +49,7 @@ class ExcelApp
   end
 
   def save(book, path)
-    fso = WIN32OLE.new('Scripting.FileSystemObject')    
+    fso = WIN32OLE.new('Scripting.FileSystemObject')
     full_path = fso.GetAbsolutePathName(path)
 
     book.SaveAs({
@@ -61,7 +61,7 @@ class ExcelApp
   def freeze_pane
     @excel.ActiveWindow.FreezePanes = true
   end
-  
+
   def quit
     if @excel != nil then
       @excel.Quit
@@ -84,48 +84,48 @@ class AmazExcel
       height: 50,
     },
     col: {
-      date:	{
-        label: "日付",			pos: 2,
+      date: {
+        label: "日付",          pos: 2,
         format: %|yyyy"年"mm"月"dd"日"|,
       },
       image: {
-        label: "画像",			pos: 3,
+        label: "画像",          pos: 3,
         width: 8,
       },
       name: {
-        label: "商品名",    	pos: 4,
+        label: "商品名",        pos: 4,
         width: 70,
         wrap: true,
       },
       count: {
-        label: "数量",      	pos: 5,
+        label: "数量",          pos: 5,
         format: %|0_ |,
         width: 8,
       },
       price: {
-        label: "価格",      	pos: 6,
+        label: "価格",          pos: 6,
         format: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* "-"_ ;_ @_ |, # NOTE: 末尾の空白要
       },
       category: {
-        label: "カテゴリ",    	pos: 7,
+        label: "カテゴリ",      pos: 7,
         width: 15,
       },
       subcategory: {
-        label: "サブカテゴリ", 	pos: 8,
+        label: "サブカテゴリ",  pos: 8,
         width: 22,
       },
       seller: {
-        label: "売り手",    	pos: 9,
+        label: "売り手",        pos: 9,
         width: 29,
         wrap: true,
       },
       id: {
-        label: "商品ID",    	pos: 10,
+        label: "商品ID",        pos: 10,
         width: 17,
         format: %|@|
       },
       url: {
-        label: "商品URL",   	pos: 11, 
+        label: "商品URL",       pos: 11,
         width: 11,
       },
     }
@@ -135,17 +135,17 @@ class AmazExcel
       pos: 2,      height: 20,
     },
     col: {
-      target:	{
-        label: nil,   			pos: 2, 
+      target:   {
+        label: nil,             pos: 2,
         format: %|@|
       },
       count: {
-        label: "合計数量", 		pos: 3, 
+        label: "合計数量",      pos: 3,
         width: 12,
         format: %|0_ |,
       },
       price: {
-        label: "合計価格", 		pos: 4, 
+        label: "合計価格",      pos: 4,
         format: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* "-"_ ;_ @_ |, # NOTE: 末尾の空白要
         width: 17,
       },
@@ -263,7 +263,7 @@ class AmazExcel
                             })
     shape.ScaleHeight(1, true)
     shape.ScaleWidth(1, true)
-    
+
     scale = 1
     cell_width = sheet.Cells[1, col].Width - (IMG_SPACEING*2)
     cell_height = sheet.Cells[row, 1].Height - (IMG_SPACEING*2)
@@ -424,9 +424,9 @@ class AmazExcel
     insert_header(sheet, HIST_HEADER)
     insert_hist_image(sheet, hist_data, img_dir)
     config_view(sheet, HIST_HEADER)
-    
+
     data_range = get_data_range(sheet, HIST_HEADER)
-    
+
     return {
       start_row: data_range.Rows(1).Row,
       last_row: data_range.Rows(data_range.Rows.Count).Row,
@@ -450,7 +450,7 @@ class AmazExcel
 
   def insert_category_stat_data(sheet, hist_data, hist_data_range_info)
     category_set = Set.new
-    
+
     hist_data.each do |item|
       category_set.add(item["category"])
     end
