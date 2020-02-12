@@ -362,6 +362,7 @@ class Amazhist
         item_list.concat(order_item)
         STDERR.print '.'
         STDERR.flush
+        sleep(5)
       rescue Mechanize::Error => e
         self.class.warn('URL: %s' % [ e.page.uri.to_s ])
         STDERR.puts(e.message)
