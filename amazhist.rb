@@ -55,6 +55,7 @@ end
 
 class Amazhist
   AMAZON_URL      = 'http://www.amazon.co.jp/'
+
   HIST_URL_FORMAT = 'https://www.amazon.co.jp/gp/css/order-history?' +
                     'digitalOrders=1&unifiedOrders=1&orderFilter=year-%d&startIndex=%d'
   # NOTE: 下記アドレスの「?」以降を省略すると，時々ページの表示内容が変わり，
@@ -355,6 +356,7 @@ class Amazhist
 
         detail_url = order.css('a').select{|e| e.text =~ /注文の詳細/}[0][:href]
         order_item = parse_order_page(detail_url, date, img_url_map)
+
         if (order_item.empty?) then
           self.class.warn('注文詳細を読み取れませんでした．')
           self.class.warn('URL: %s' % [ detail_url])
@@ -402,7 +404,7 @@ end
 
 params = ARGV.getopts('j:t:')
 if (params['j'] == nil) then
-  Amazhist.error('履歴情報を保存するファイルのパスが指定されていません．' + 
+  Amazhist.error('履歴情報を保存するファイルのパスが指定されていません．' +
                  '(-j で指定します)')
   exit
 end
@@ -423,8 +425,8 @@ end
 
 FileUtils.mkdir_p(img_dir_path)
 amazhist = Amazhist.new({
-                          id: ENV['amazon_id'], 	# Amazon の ID
-                          pass: ENV['amazon_pass'],	# Amazon の パスワード
+                          id: ENV['amazon_id'],     # Amazon の ID
+                          pass: ENV['amazon_pass'], # Amazon の パスワード
                         },
                         img_dir_path)
 
@@ -437,7 +439,7 @@ File.open(json_file_path, 'w') do |file|
   file.puts JSON.generate(item_list)
 end
 
-STDERR.puts Color.bold(Color.blue('Writing output file')) 
+STDERR.puts Color.bold(Color.blue('Writing output file'))
 
 # Local Variables:
 # coding: utf-8
