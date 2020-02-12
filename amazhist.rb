@@ -125,6 +125,24 @@ class Amazhist
       page = page.form_with(name: 'signIn').submit
     end
     raise StandardError.new('ログインに失敗しました．')
+
+  def fetch_html(url, file_path)
+    if (defined? DEBUG) then
+      File.open(file_path, 'r') do |file|
+        return Nokogiri::HTML(file)
+      end
+    end
+
+    web_page = @mech.get(url)
+    web_page = login(web_page)
+
+    if (defined? TRACE) then
+      File.open(file_path, 'w') do |file|
+        file.puts(web_page.body.toutf8)
+      end
+    end
+
+    return Nokogiri::HTML(web_page.body.toutf8, 'UTF-8')
   end
 
   def get_item_category(item_id, name, offset = 0)
@@ -306,9 +324,7 @@ class Amazhist
   end
 
   def parse_order_page(url, date, img_url_map)
-    page = @mech.get(url)
-    page = login(page)
-    html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
+    html = fetch_html(url, 'debug_order_page.htm')
 
     if (!html.xpath('//b[contains(text(), "デジタル注文")]').empty?) then
       return parse_order_digital(html, date, img_url_map)
@@ -317,16 +333,7 @@ class Amazhist
     end
   end
 
-  def parse_item_page(page, item_list)
-    html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
-
-    # NOTE: for development
-    if (defined? DEBUG) then
-      f = File.open('debug.htm')
-      html = Nokogiri::HTML(f)
-      f.close
-    end
-
+  def parse_order_list_page(html, item_list)
     html.css('div.order').each do |order|
       begin
         date_text = order.css('div.order-info span.value')[0].text.strip
@@ -370,16 +377,8 @@ class Amazhist
   end
 
   def get_item_list_by_page(year, page, item_list)
-    # NOTE: for development
-    if (defined? DEBUG) then
-      parse_item_page(nil, item_list)
-      p item_list
-      exit
-    end
-
-    page = @mech.get(hist_url(year, page))
-    page = login(page)
-    return parse_item_page(page, item_list)
+    html = fetch_html(hist_url(year, page), 'debug_order_list_page.htm')
+    return parse_order_list_page(html, item_list)
   end
 
   def get_item_list(year)
