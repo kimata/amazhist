@@ -102,10 +102,10 @@ class Amazhist
     return HIST_URL_FORMAT % [ year, 10 * (page-1) ]
   end
 
-  def login(page)
+  def login(web_page)
     2.times do |i|
-      if !%r|サインイン|.match(page.title) then
-        return page
+      if !%r|Amazonログイン|.match(web_page.title) then
+        return web_page
       end
 
       html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
