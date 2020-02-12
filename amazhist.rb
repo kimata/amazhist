@@ -72,6 +72,8 @@ class Amazhist
     @img_dir_path = Pathname.new(img_dir_path)
 
     cookie_load()
+    web_page = @mech.get(AMAZON_URL)
+    sleep(RETRY_WAIT_SEC)
   end
 
   def self.error(message)
@@ -380,7 +382,7 @@ class Amazhist
 
   def get_item_list(year)
     item_list = []
-    @mech.get('http://www.amazon.co.jp/')
+
     page = 1
     loop do
       STDERR.print '%s Year %d page %d ' % [ Color.bold(Color.green('Parsing')), 
