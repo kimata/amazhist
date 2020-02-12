@@ -109,24 +109,26 @@ class Amazhist
         return web_page
       end
 
-      html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
-      if (i != 0) then
-        if !%r|画像に表示されている文字|.match(html.css('#ap_captcha_title').text) then
-          self.class.error('ID もしくはパスワードが異なります．')
-        end
-        # 2回目以降は少し待つ
-        sleep_time = 300
-        self.class.warn('画像認証を要求されたので %d 分後にリトライします．' % [ sleep_time / 60 ])
-        sleep(sleep_time) if (i != 0)
-      end
+      sleep(1)
 
-      page.form_with(name: 'signIn') do |form|
-        form.field_with(name: 'email').value = @user_info[:id]
-        form.field_with(name: 'password').value = @user_info[:pass]
+      html = Nokogiri::HTML(web_page.body.toutf8, 'UTF-8')
+      if (i == 0) then
+        web_page.form_with(name: 'signIn') do |form|
+          form.field_with(name: 'email').value = @user_info[:id]
+          form.field_with(name: 'password').value = @user_info[:pass]
+        end
+        web_page = web_page.form_with(name: 'signIn').submit
+      else
+        if (defined? TRACE) then
+          File.open('debug_login_page.htm', 'w') do |file|
+            file.puts(web_page.body.toutf8)
+          end
+        end
+        break
       end
-      page = page.form_with(name: 'signIn').submit
     end
     raise StandardError.new('ログインに失敗しました．')
+  end
 
   def fetch_html(url, file_path)
     if (defined? DEBUG) then
