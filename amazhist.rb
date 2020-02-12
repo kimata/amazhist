@@ -187,10 +187,12 @@ class Amazhist
   def parse_order_normal(html, date)
     item_list = []
 
-    html.css('div.a-fixed-left-grid').each do |item|
+    html.xpath('//div[@class="a-box shipment" or @class="a-box shipment shipment-is-delivered"]' +
+               '//div[@class="a-fixed-right-grid-col a-col-left"]/div/div').each do |item|
       name = item.css('div.a-row')[0].text.strip
       url = URI.join(AMAZON_URL, item.css('div.a-row')[0].css('a')[0][:href]).to_s
       id = %r|/gp/product/([^/]+)/|.match(url)[1]
+
       count = 1
       if (%r|^商品名：(.+)、数量：(\d+)|.match(name)) then
         name = $1
