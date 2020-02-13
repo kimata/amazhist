@@ -248,7 +248,7 @@ class AmazExcel
     end
 
   def insert_picture(sheet, row, col, img_path)
-    fso = WIN32OLE.new('Scripting.FileSystemObject')    
+    fso = WIN32OLE.new('Scripting.FileSystemObject')
     img_full_path = fso.GetAbsolutePathName(img_path)
 
     cell_range = sheet.Cells[row, col]
@@ -663,22 +663,22 @@ class AmazExcel
     end
 
     format_data(sheet, SHEET_NAME[stat_type], STAT_HEADER)
-    insert_header(sheet, STAT_HEADER, { nil => TARGET_LABEL[stat_type] }) 
-    set_border(sheet, STAT_HEADER)   
+    insert_header(sheet, STAT_HEADER, { nil => TARGET_LABEL[stat_type] })
+    set_border(sheet, STAT_HEADER)
     insert_graph(sheet, stat_type)
   end
 
   def conver(json_path, img_dir_path, excel_path)
     begin
       img_dir = Pathname.new(img_dir_path)
-      hist_data = open(json_path) {|io| JSON.load(io) }      
+      hist_data = open(json_path) {|io| JSON.load(io) }
       hist_data.sort_by! {|item| Date.strptime(item["date"], "%Y-%m-%d") }
 
       # MEMO: サンプルデータ作成用
       # tmp_hist_data = hist_data
       # hist_data = []
       # (2013..2015).each do |year|
-      #   (1..12).each do |month|        
+      #   (1..12).each do |month|
       #     data = tmp_hist_data.select {|item|
       #       date = Date.strptime(item["date"], "%Y-%m-%d")
       #       (date.year == year) && (date.month == month)
