@@ -9,6 +9,8 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 # 準備
 
+次のコマンドを実行して必要なモジュールをインストールします．
+
 `bundle install`
 
 環境変数 `amazon_id` と `amazon_pass` に Amazon のログイン情報をセットしておきます．
@@ -42,6 +44,7 @@ Windows の PowerShell の場合は次のようにします．
 ## Excel ファイルの精製
 
 次のコマンドを実行すると，先ほど収集したデータから Excel ファイルを生成します．
+Win32OLE を使っている為，Windows 上の Ruby でのみ実行できます．
 
 `./amazexcel.rb -j amazhist.json -t img -o amazhist.xlsx`
 
@@ -59,5 +62,5 @@ Windows の PowerShell の場合は次のようにします．
 
 # 参考方法
 
-出力サンプルおよび使い方については「[Amazon の買い物履歴情報のビジュアル化 【2018年 Excel 版】](https://rabbit-note.com/2018/01/04/amazon-purchase-history-report-2018/)」を参照お願いします．
+出力サンプル等については「[Amazon の買い物履歴情報のビジュアル化 【2018年 Excel 版】](https://rabbit-note.com/2018/01/04/amazon-purchase-history-report-2018/)」にて紹介しています．
 
