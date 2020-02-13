@@ -210,7 +210,7 @@ class Amazhist
   def parse_order_normal(html, date)
     item_list = []
 
-    html.xpath('//div[@class="a-box shipment" or @class="a-box shipment shipment-is-delivered"]' +
+    html.xpath('//div[@class="a-box" or @class="a-box shipment" or @class="a-box shipment shipment-is-delivered"]' +
                '//div[@class="a-fixed-right-grid-col a-col-left"]/div/div').each do |item|
       name = item.css('div.a-row')[0].text.strip
       url = URI.join(AMAZON_URL, item.css('div.a-row')[0].css('a')[0][:href]).to_s
