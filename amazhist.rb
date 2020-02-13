@@ -365,18 +365,19 @@ class Amazhist
           self.class.warn('注文詳細を読み取れませんでした．')
           self.class.warn('URL: %s' % [ detail_url], false)
         end
+
         item_list.concat(order_item)
         STDERR.print '.'
         STDERR.flush
-        sleep(5)
       rescue Mechanize::Error => e
         self.class.warn('URL: %s' % [ e.page.uri.to_s ])
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}|.match(item) }[0])
-        sleep 5
       rescue => e
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}|.match(item) }[0])
+      ensure
+        sleep(1)
       end
     end
 
