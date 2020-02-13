@@ -13,17 +13,14 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 環境変数 `amazon_id` と `amazon_pass` に Amazon のログイン情報をセットしておきます．
 
-`
-export amazon_id="Amazon のログイン ID"
-export amazon_pass="Amazon のパスワード"
-`
+    export amazon_id="Amazon のログイン ID"
+    export amazon_pass="Amazon のパスワード"
 
 Windows の PowerShell の場合は次のようにします．
 
-`
-$env:amazon_id="Amazon のログイン ID"
-$env:amazon_pass="Amazon のパスワード"
-`
+    $env:amazon_id="Amazon のログイン ID"
+    $env:amazon_pass="Amazon のパスワード"
+
 
 # 実行
 
