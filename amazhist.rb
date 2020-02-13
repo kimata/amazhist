@@ -78,14 +78,14 @@ class Amazhist
     sleep(RETRY_WAIT_SEC)
   end
 
-  def self.error(message)
-    STDERR.puts
+  def self.error(message, is_nl=true)
+    STDERR.puts if (is_nl)
     STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
     exit
   end
 
-  def self.warn(message)
-    STDERR.puts
+  def self.warn(message, is_nl=true)
+    STDERR.puts if (is_nl)
     STDERR.puts '[%s] %s' % [ Color.bold(Color.yellow('WARN')), message ]
   end
 
@@ -363,7 +363,7 @@ class Amazhist
 
         if (order_item.empty?) then
           self.class.warn('注文詳細を読み取れませんでした．')
-          self.class.warn('URL: %s' % [ detail_url])
+          self.class.warn('URL: %s' % [ detail_url], false)
         end
         item_list.concat(order_item)
         STDERR.print '.'
