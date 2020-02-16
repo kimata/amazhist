@@ -175,32 +175,6 @@ class AmazExcel
     },
   }
 
-  # TARGET_LABEL = {
-  #   category_stat: HIST_HEADER[:col][:category][:label],
-  #   yearly_stat: "年",
-  #   monthly_stat: "年月",
-  #   wday_stat: "曜日",
-  # }
-  GRAPH_CONFIG = {
-    category_stat: {
-      width: 700,
-      height: 420,
-    },
-    yearly_stat: {
-      width: 500,
-      height: 300,
-    },
-    monthly_stat: {
-      width: 1200,
-      height: 360,
-    },
-    wday_stat: {
-      width: 500,
-      height: 300,
-    },
-  }
-  IMG_SPACEING = 2
-
   def initialize
     @package = Axlsx::Package.new
     @tmp_dir_path = Dir.mktmpdir('amazexcel-')
@@ -819,62 +793,8 @@ class AmazExcel
       })
     end
 
-    create_stat_sheet(book, sheet_config, hist_sheet_info)
-
-
-    # insert_graph(sheet, stat_type)
+    create_stat_sheet_impl(book, sheet_config, hist_sheet_info)
   end
-
-  # def insert_graph(sheet, stat_type)
-  #   STDERR.print Color.green("    - Insert Graph ")
-  #   STDERR.flush
-
-  #   chart_width = GRAPH_CONFIG[stat_type][:width]
-  #   chart_height = GRAPH_CONFIG[stat_type][:height]
-
-  #   graph_col = STAT_HEADER[:col][get_last_col_id(STAT_HEADER)][:pos] + 2
-  #   graph_range = sheet.Cells[STAT_HEADER[:row][:pos], graph_col]
-
-  #   chart = sheet.ChartObjects.Add(graph_range.Left, graph_range.Top, chart_width, chart_height).Chart
-  #   chart.SeriesCollection.NewSeries()
-  #   chart.SeriesCollection.NewSeries()
-  #   chart.HasTitle = true
-  #   chart.ChartTitle.Text = sheet.Name
-  #   chart.HasLegend = true
-  #   chart.Legend.Position = ExcelConst::XlLegendPositionBottom
-
-  #   series = chart.SeriesCollection(1)
-  #   series.ChartType = ExcelConst::XlColumnClustered
-  #   series.XValues = get_data_col_range(sheet, STAT_HEADER, :target)
-  #   series.Values = get_data_col_range(sheet, STAT_HEADER, :count)
-  #   series.Name = STAT_HEADER[:col][:count][:label]
-
-  #   series = chart.SeriesCollection(2)
-  #   series.ChartType = ExcelConst::XlLine
-  #   series.XValues = get_data_col_range(sheet, STAT_HEADER, :target)
-  #   series.Values = get_data_col_range(sheet, STAT_HEADER, :price)
-  #   series.Name = STAT_HEADER[:col][:price][:label]
-  #   series.AxisGroup = ExcelConst::XlSecondary
-
-  #   yaxis_0 = chart.Axes(ExcelConst::XlValue, ExcelConst::XlPrimary)
-  #   yaxis_1 = chart.Axes(ExcelConst::XlValue, ExcelConst::XlSecondary)
-  #   xaxis = chart.Axes(ExcelConst::XlCategory, ExcelConst::XlPrimary)
-
-  #   yaxis_0.HasTitle = true
-  #   yaxis_0.AxisTitle.Text = "数量"
-  #   set_font(yaxis_0.AxisTitle, 11)
-  #   yaxis_1.HasTitle = true
-  #   yaxis_1.AxisTitle.Text = "金額"
-  #   set_font(yaxis_1.AxisTitle, 11)
-
-  #   set_font(chart.ChartTitle, 14)
-  #   set_font(yaxis_0.TickLabels, 11)
-  #   set_font(yaxis_1.TickLabels, 11)
-  #   set_font(xaxis.TickLabels, 11)
-  #   set_font(chart.Legend, 11)
-
-  #   STDERR.puts
-  # end
 
   def convert(json_path, img_dir_path, excel_path)
     begin
