@@ -60,10 +60,10 @@ class AmazExcel
       },
       col: {
         date:           { label: '日付',            pos: 1,     width: 23, },
-        image:          { label: '画像',            pos: 2,     width: 8,  },
-        name:           { label: '商品名',          pos: 3,     width: 70, },
+        name:           { label: '商品名',          pos: 2,     width: 70, },
+        image:          { label: '画像',            pos: 3,     width: 8,  },
         count:          { label: '数量',            pos: 4,     width: 8,  },
-        price:          { label: '価格',            pos: 5,     width: 14, },
+        price:          { label: '価格',            pos: 5,     width: 16, },
         category:       { label: 'カテゴリ',        pos: 6,     width: 21, },
         subcategory:    { label: 'サブカテゴリ',    pos: 7,     width: 30, },
         seller:         { label: '売り手',          pos: 8,     width: 29, },
