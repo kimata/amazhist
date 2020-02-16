@@ -221,64 +221,6 @@ class AmazExcel
     @tmp_dir_path = Dir.mktmpdir('amazexcel-')
   end
 
-  # def get_first_col_id(header)
-  #   first_col_id = nil
-  #   col = 100
-  #   header[:col].each do |col_id, cell_config|
-  #     if (cell_config[:pos] < col) then
-  #       col =  cell_config[:pos]
-  #       first_col_id = col_id
-  #     end
-  #   end
-  #   return first_col_id
-  # end
-
-  # def get_last_col_id(header)
-  #   last_col_id = nil
-  #   col = 0
-  #   header[:col].each do |col_id, cell_config|
-  #     if (cell_config[:pos] > col) then
-  #       col =  cell_config[:pos]
-  #       last_col_id = col_id
-  #     end
-  #   end
-  #   return last_col_id
-  # end
-
-  # def get_table_range(sheet, header)
-  #   if (header == HIST_HEADER) then
-  #     return sheet.Cells[HIST_HEADER[:row][:pos],
-  #                        HIST_HEADER[:col][:name][:pos]].CurrentRegion
-  #   elsif (header == STAT_HEADER) then
-  #     return sheet.Cells[STAT_HEADER[:row][:pos],
-  #                        STAT_HEADER[:col][:target][:pos]].CurrentRegion
-  #   else
-  #     raise StandardError.new("BUG: 未知のヘッダです．")
-  #   end
-  # end
-
-  # def get_data_col_range(sheet, header, col_id=nil)
-  #   table_range = get_table_range(sheet, header)
-  #   col_id = get_first_col_id(header) if col_id == nil
-  #   last_row = table_range.Rows(table_range.Rows.Count).Row
-
-  #   return sheet.Range(sheet.Cells[header[:row][:pos]+1,
-  #                                  header[:col][col_id][:pos]],
-  #                      sheet.Cells[last_row,
-  #                                  header[:col][col_id][:pos]])
-  # end
-
-  # def get_data_range(sheet, header)
-  #   table_range = get_table_range(sheet, header)
-  #   last_row = table_range.Rows(table_range.Rows.Count).Row
-
-  #   return sheet.Range(sheet.Cells[header[:row][:pos]+1,
-  #                                  table_range.Columns(1).Column],
-  #                      sheet.Cells[last_row,
-  #                                  table_range.Columns(table_range.Columns.Count).Column])
-  #   end
-
-
   def create_style(sheet, table_config)
     style = {}
 
