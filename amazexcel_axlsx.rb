@@ -623,7 +623,7 @@ class AmazExcel
     }
   end
 
-  def create_stat_sheet(book, sheet_config, hist_sheet_info)
+  def create_stat_sheet_impl(book, sheet_config, hist_sheet_info)
     STDERR.puts Color.bold(Color.green("「#{sheet_config[:name]}」シートを作成します:"))
     STDERR.flush
 
@@ -685,7 +685,7 @@ class AmazExcel
     STDERR.puts
   end
 
-  def create_stat_sheet_impl(book, stat_type, hist_data, hist_data_range)
+  def create_stat_sheet(book, stat_type, hist_data, hist_data_range)
     hist_sheet_info = {
       name: SHEET_NAME[:hist_data],
       config: HIST_CONFIG,
@@ -779,8 +779,10 @@ class AmazExcel
 
       hist_data_range = create_hist_sheet(book, hist_data, img_dir)
 
-      [ :category_stat, :yearly_stat, :monthly_stat, :wday_stat ].each_with_index do |stat_type, i|
-        create_stat_sheet_impl(book, stat_type, hist_data, hist_data_range)
+      [
+        :category_stat, :yearly_stat, :monthly_stat, :wday_stat
+      ].each_with_index do |stat_type, i|
+        create_stat_sheet(book, stat_type, hist_data, hist_data_range)
       end
       @package.serialize(excel_path)
     end
