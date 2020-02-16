@@ -75,14 +75,14 @@ class AmazExcel
         label: "日付",          pos: 2,
         format: %|yyyy"年"mm"月"dd"日"|,
       },
-      image: {
-        label: "画像",          pos: 3,
-        width: 8,
-      },
       name: {
-        label: "商品名",        pos: 4,
+        label: "商品名",        pos: 3,
         width: 70,
         wrap: true,
+      },
+      image: {
+        label: "画像",          pos: 4,
+        width: 8,
       },
       count: {
         label: "数量",          pos: 5,
