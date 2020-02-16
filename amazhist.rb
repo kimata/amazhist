@@ -366,7 +366,9 @@ class Amazhist
     return []
   end
 
-  def parse_order_list_page(html, item_list)
+  def parse_order_list_page(html)
+    item_list = []
+
     html.css('div.order').each do |order|
       begin
         date_text = order.css('div.order-info span.value')[0].text.strip
@@ -393,7 +395,6 @@ class Amazhist
           self.class.warn('注文詳細を読み取れませんでした．')
           self.class.warn('URL: %s' % [ detail_url], false)
         end
-
         item_list.concat(order_item)
         STDERR.print '.'
         STDERR.flush
@@ -409,12 +410,15 @@ class Amazhist
       end
     end
 
-    return html.css('div.pagination-full li.a-last').css('a').empty?
+    return {
+      item_list: item_list,
+      is_last: html.css('div.pagination-full li.a-last').css('a').empty?
+    }
   end
 
-  def get_item_list_by_page(year, page, item_list)
+  def get_item_list_by_page(year, page)
     html = fetch_html(hist_url(year, page), 'debug_order_list_page.htm')
-    return parse_order_list_page(html, item_list)
+    return parse_order_list_page(html)
   end
 
   def get_item_list(year)
@@ -425,9 +429,10 @@ class Amazhist
       STDERR.print '%s Year %d page %d ' % [ Color.bold(Color.green('Parsing')), 
                                            year, page ]
       STDERR.flush
-      is_last = get_item_list_by_page(year, page, item_list)
+      page_info = get_item_list_by_page(year, page)
+      item_list.concat(page_info[:item_list])
       STDERR.puts
-      break if is_last
+      break if page_info[:is_last]
       page += 1
       sleep 30
     end
