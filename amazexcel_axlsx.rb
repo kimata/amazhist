@@ -111,7 +111,7 @@ class AmazExcel
         price: {
           type: :integer,
           style: {
-            format_code: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* '-'_ ;_ @_ |, # NOTE: 末尾の空白要
+            format_code: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* -_ ;_ @_ |, # NOTE: 末尾の空白要
           },
         },
         seller: {
