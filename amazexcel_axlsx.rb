@@ -4,21 +4,6 @@
 
 # Amazon の全購入履歴を Excel ファイルに見やすく出力するスクリプトです．
 # amazhist.rb と組み合わせて使用します．
-# WIN32OLE を使用するため，基本的に Windows で実行することを想定しています．
-#
-# ■準備
-#   このスクリプトでは次のライブラリを使っていますので，入っていない場合は
-#   インストールしておいてください．
-#   - Term::ANSIcolor
-#
-# ■使い方
-# 1. スクリプトを実行
-#    $ ruby amazexcel.rb -j amazhist.json -t img -o amazhist.xlsx
-#    引数の意味は以下
-#    - j 履歴情報を保存する JSON ファイルのパス (amazhist.rb にて生成したもの)
-#    - t サムネイル画像が保存されているディレクトリのパス (amazhist.rb にて生成したもの)
-#    - o 生成する Excel ファイルのパス
-
 
 require 'date'
 require 'json'
@@ -934,27 +919,61 @@ def error(message)
   exit
 end
 
-
-params = ARGV.getopts("j:t:o:")
-if (params["j"] == nil) then
-  error("履歴情報が保存されたファイルのパスが指定されていません．" +
-        "(-j で指定します)")
-end
-if (params["t"] == nil) then
-  error("サムネイル画像が保存されたディレクトリのパスが指定されていません．" +
-        "(-t で指定します)")
-end
-if (params["o"] == nil) then
-  error("生成する Excel ファイルのパスが指定されていません．" +
-        "(-o で指定します)")
+def warn(message)
+  STDERR.puts '[%s] %s' % [ Color.bold(Color.yellow('WARN')), message ]
 end
 
-json_file_path = params["j"]
-img_dir_path = params["t"]
-excel_file_path = params["o"]
+def show_usage()
+  puts <<"EOS"
+■使い方
+#{File.basename(__FILE__)} -j amazhist.json -t img -o amazhist.xlsx
+
+引数の意味は以下なります．省略した場合，上記と同じ内容で実行します．
+- j 履歴情報を保存する JSON ファイルのパス (amazhist.rb にて生成したもの)
+- t サムネイル画像が保存されているディレクトリのパス (amazhist.rb にて生成したもの)
+- o 生成する Excel ファイルのパス
+EOS
+end
+
+def check_arg(arg)
+  puts <<"EOS"
+次の設定で実行します．
+- 履歴情報ファイル          : #{arg[:json_file_path]}
+- サムネイルディレクトリ    : #{arg[:img_dir_path]}
+- エクセルファイル(出力先)  : #{arg[:excel_file_path]}
+
+続けますか？ [Y/n]
+EOS
+  answer = gets().strip
+
+  if ((answer != '') && (answer.downcase != 'y')) then
+    error('中断しました')
+    exit
+  end
+end
+
+ARG_DEFAULT = {
+  json_file_path:   'amazhist.json',
+  img_dir_path:     'img',
+  excel_file_path:  'amazhist.xlsx'
+}
+
+params = ARGV.getopts('j:t:o:h')
+
+if (params['h']) then
+  show_usage()
+  exit
+end
+
+arg = ARG_DEFAULT.dup
+ARG_DEFAULT[:json_file_path]    = params['j'] if params['j']
+ARG_DEFAULT[:img_dir_path]      = params['t'] if params['t']
+ARG_DEFAULT[:excel_file_path]   = params['o'] if params['o']
+
+check_arg(arg)
 
 amazexcel = AmazExcel.new
-amazexcel.convert(json_file_path, img_dir_path, excel_file_path)
+amazexcel.convert(arg[:json_file_path], arg[:img_dir_path], arg[:excel_file_path])
 
 # Local Variables:
 # coding: utf-8
