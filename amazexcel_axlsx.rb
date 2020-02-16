@@ -339,6 +339,21 @@ class AmazExcel
         end
       end
     end
+
+    row = sheet.rows.size
+    col = table_config[:header][:col][:price][:pos]
+    sheet.add_row(Array.new(col_max + 1, ''))
+
+    sheet.rows[row].cells[col].value =
+      %|=SUM(%s%d:%s%d)| %
+      [
+        num2alpha(table_config[:header][:col][:price][:pos]),
+        table_config[:header][:row][:pos] + 1,
+        num2alpha(table_config[:header][:col][:price][:pos]),
+        row
+      ]
+    set_style(sheet.rows[row].cells[col], :price_sum, style[:data])
+
     STDERR.puts
   end
 
