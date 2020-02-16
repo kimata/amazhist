@@ -804,9 +804,13 @@ def show_usage()
 #{File.basename(__FILE__)} -j amazhist.json -t img -o amazhist.xlsx
 
 引数の意味は以下なります．省略した場合，上記と同じ内容で実行します．
-- j 履歴情報を保存する JSON ファイルのパス (amazhist.rb にて生成したもの)
-- t サムネイル画像が保存されているディレクトリのパス (amazhist.rb にて生成したもの)
-- o 生成する Excel ファイルのパス
+
+  -j 履歴情報を保存する JSON ファイルのパス (amazhist.rb にて生成したもの)
+
+  -t サムネイル画像が保存されているディレクトリのパス (amazhist.rb にて生成したもの)
+
+  -o 生成する Excel ファイルのパス
+
 EOS
 end
 
