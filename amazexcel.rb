@@ -266,7 +266,7 @@ class AmazExcel
   end
 
   def insert_header(sheet, header, label_map={})
-    STDERR.print Color.green("    - Insert Header ")
+    STDERR.print Color.cyan('    - テーブルヘッダを挿入します ')
     STDERR.flush
 
     header[:col].each_value do |cell_config|
@@ -282,7 +282,7 @@ class AmazExcel
   end
 
   def insert_hist_data(sheet, hist_data)
-    STDERR.print Color.green("    - Insert Data ")
+    STDERR.print Color.cyan('    - 履歴データを挿入します ')
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
@@ -319,7 +319,7 @@ class AmazExcel
   end
 
   def format_data(sheet, sheet_name, header)
-    STDERR.print Color.green("    - Format Data ")
+    STDERR.print Color.cyan('    - スタイルを設定します ')
     STDERR.flush
 
     sheet.Name = sheet_name
@@ -357,7 +357,7 @@ class AmazExcel
   end
 
   def set_border(sheet, header)
-    STDERR.print Color.green("    - Set Border ")
+    STDERR.print Color.cyan('    - 罫線を設定します ')
     STDERR.flush
     data_range = get_data_range(sheet, header)
     data_range.Borders(ExcelConst::XlInsideHorizontal).LineStyle = ExcelConst::XlContinuous
@@ -366,7 +366,7 @@ class AmazExcel
   end
 
   def insert_hist_image(sheet, hist_data, img_dir)
-    STDERR.print Color.green("    - Insert Image ")
+    STDERR.print Color.cyan('    - サムネイルを挿入します ')
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
@@ -402,7 +402,7 @@ class AmazExcel
   end
 
   def create_hist_sheet(sheet, hist_data, img_dir)
-    STDERR.puts Color.bold(Color.green("Create History Sheet:"))
+    STDERR.puts Color.bold(Color.green("「#{SHEET_NAME[:hist_data]}」シートを作成します:"))
     STDERR.flush
 
     insert_hist_data(sheet, hist_data)
@@ -588,7 +588,7 @@ class AmazExcel
   end
 
   def insert_graph(sheet, stat_type)
-    STDERR.print Color.green("    - Insert Graph ")
+    STDERR.print Color.cyan('    - グラフを挿入します ')
     STDERR.flush
 
     chart_width = GRAPH_CONFIG[stat_type][:width]
@@ -639,7 +639,7 @@ class AmazExcel
   end
 
   def create_stat_sheet(sheet, stat_type, hist_data, hist_data_range)
-    STDERR.puts Color.bold(Color.green("Create Category Statistics:"))
+    STDERR.puts Color.bold(Color.green('集計シートを作成します:'))
     STDERR.flush
 
     case stat_type
@@ -687,6 +687,10 @@ class AmazExcel
       end
 
       @excel_app.save(book, excel_path)
+
+      STDERR.puts
+      STDERR.puts '完了しました．'
+      STDERR.puts
     ensure
       @excel_app.quit
     end
