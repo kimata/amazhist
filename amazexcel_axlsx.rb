@@ -291,6 +291,34 @@ class AmazExcel
     STDERR.puts
   end
 
+  def insert_item(sheet, table_config, style, row, col_max, item)
+    sheet.add_row(Array.new(col_max + 1, ''))
+    if (table_config[:data][:row].has_key?(:height)) then
+      sheet.rows[row].height = table_config[:data][:row][:height]
+    end
+
+    table_config[:header][:col].each_key do |name|
+      col = table_config[:header][:col][name][:pos]
+
+      if (name == :url) then
+        sheet.rows[row].cells[col].value = 'URL'
+        sheet.add_hyperlink(
+          :location => item[name.to_s],
+          :ref => sheet.rows[row].cells[col]
+        )
+      else
+        if (table_config[:data][:col].has_key?(name) &&
+            table_config[:data][:col][name].has_key?(:type)) then
+          sheet.rows[row].cells[col].type = table_config[:data][:col][name][:type]
+        end
+        if (item.has_key?(name.to_s)) then
+          sheet.rows[row].cells[col].value = item[name.to_s]
+        end
+      end
+      set_style(sheet.rows[row].cells[col], name, style[:data])
+    end
+  end
+
   def insert_hist_data(sheet, style, table_config, hist_data)
     STDERR.print Color.green('    - 履歴データを挿入します ')
     STDERR.flush
@@ -299,33 +327,7 @@ class AmazExcel
 
     hist_data.each_with_index do |item, i|
       row = table_config[:header][:row][:pos] + 1 + i
-
-      sheet.add_row(Array.new(col_max + 1, ''))
-      if (table_config[:data][:row].has_key?(:height)) then
-        sheet.rows[row].height = table_config[:data][:row][:height]
-      end
-
-      table_config[:header][:col].each_key do |name|
-        col = table_config[:header][:col][name][:pos]
-
-        if (name == :url) then
-          sheet.rows[row].cells[col].value = 'URL'
-          sheet.add_hyperlink(
-            :location => item[name.to_s],
-            :ref => sheet.rows[row].cells[col]
-          )
-        else
-          if (table_config[:data][:col].has_key?(name) &&
-              table_config[:data][:col][name].has_key?(:type)) then
-            sheet.rows[row].cells[col].type = table_config[:data][:col][name][:type]
-          end
-          if (item.has_key?(name.to_s)) then
-            sheet.rows[row].cells[col].value = item[name.to_s]
-          end
-        end
-
-        set_style(sheet.rows[row].cells[col], name, style[:data])
-      end
+      insert_item(sheet, table_config, style, row, col_max, item)
 
       STDERR.print '.'
       STDERR.flush
