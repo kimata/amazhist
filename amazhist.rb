@@ -215,6 +215,10 @@ class Amazhist
 
     html.xpath('//div[@class="a-box" or @class="a-box shipment" or @class="a-box shipment shipment-is-delivered"]' +
                '//div[@class="a-fixed-right-grid-col a-col-left"]/div/div').each do |item|
+      if !%r/販売|コンディション/.match(item.text) then
+        next
+      end
+
       name = item.css('div.a-row')[0].text.strip
       url = URI.join(AMAZON_URL, item.css('div.a-row')[0].css('a')[0][:href]).to_s
       id = %r|/gp/product/([^/]+)/|.match(url)[1]
@@ -287,9 +291,13 @@ class Amazhist
     name = item.css('table table tr:nth-child(2) b')[0].text.strip
     url = ''
     id = ''
+    seller = 'Amazon Japan G.K.'
     count = 1
     price = %r|\d+|.match(price_str)[0].to_i
-    seller = %r|販売: (.+)$|.match(seller_str)[1]
+
+    if m = %r|販売: (.+)$|.match(seller_str) then
+      seller = m[1]
+    end
     category_info = {
       category: '',
       subcategory: '',
