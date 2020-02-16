@@ -655,7 +655,7 @@ class AmazExcel
     insert_graph(sheet, stat_type)
   end
 
-  def conver(json_path, img_dir_path, excel_path)
+  def convert(json_path, img_dir_path, excel_path)
     begin
       img_dir = Pathname.new(img_dir_path)
       hist_data = open(json_path) {|io| JSON.load(io) }
