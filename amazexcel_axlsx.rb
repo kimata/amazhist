@@ -131,27 +131,64 @@ class AmazExcel
       },
     },
   }
-  STAT_HEADER = {
-    row: {
-      pos: 2,      height: 20,
+  STAT_CONFIG = {
+    header: {
+      row: {
+        pos: 1,
+        height: 18,
+        style: {
+          font_name: 'メイリオ',
+          bg_color: '333333',
+          fg_color: 'FFFFFF',
+          alignment: {
+            indent: 1,
+          },
+        },
+      },
+      col: {
+        target:         {                           pos: 1,     width: 23, },
+        count:          { label: '合計件数',        pos: 2,     width: 12,  },
+        price:          { label: '合計価格',        pos: 3,     width: 18, },
+      },
     },
-    col: {
-      target:   {
-        label: nil,             pos: 2,
-        format: %|@|
+    data: {
+      row: {
+        height: 18,
+        style: {
+          font_name: 'メイリオ',
+          fg_color: '333333',
+          alignment: {
+            vertical: :center,
+            indent: 1,
+          },
+          border: {
+            edges: [:top, :bottom],
+            style: :thin,
+            color: '333333',
+          },
+        },
       },
-      count: {
-        label: "合計数量",      pos: 3,
-        width: 12,
-        format: %|0_ |,
-      },
-      price: {
-        label: "合計価格",      pos: 4,
-        format: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* "-"_ ;_ @_ |, # NOTE: 末尾の空白要
-        width: 17,
+      col: {
+        target: {
+          style: {
+            format_code: %|@|,
+          },
+        },
+        count: {
+          databar_color: '63C384',
+          style: {
+            format_code: %|0_ |,
+          },
+        },
+        price: {
+          databar_color: 'FF555A',
+          style: {
+            format_code: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* -_ ;_ @_ |, # NOTE: 末尾の空白要
+          },
+        },
       },
     },
-  },
+  }
 
   # TARGET_LABEL = {
   #   category_stat: HIST_HEADER[:col][:category][:label],
