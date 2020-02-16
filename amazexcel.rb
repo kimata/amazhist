@@ -702,10 +702,6 @@ def error(message)
   exit
 end
 
-def warn(message)
-  STDERR.puts '[%s] %s' % [ Color.bold(Color.yellow('WARN')), message ]
-end
-
 def show_usage()
   puts <<"EOS"
 ■使い方
