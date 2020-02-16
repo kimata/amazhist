@@ -62,7 +62,7 @@ class Amazhist
   # NOTE: 下記アドレスの「?」以降を省略すると，時々ページの表示内容が変わり，
   # カテゴリを取得できなくなる
   ITEM_URL_FORMAT = 'http://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0'
-  CATEGORY_RETRY  = 5
+  RETRY_COUNT     = 5
   RETRY_WAIT_SEC  = 5
   COOKIE_DUMP     = 'cookie.txt'
 
@@ -155,9 +155,10 @@ class Amazhist
       category: '',
       subcategory: '',
     }
-    (0...CATEGORY_RETRY).each do
+    (0...RETRY_COUNT).each do
+      url = ITEM_URL_FORMAT % [ item_id ]
       begin
-        page = @mech.get(ITEM_URL_FORMAT % [ item_id ])
+        page = @mech.get(url)
         html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
         crumb = html.css('div.a-breadcrumb li')
 
@@ -179,11 +180,13 @@ class Amazhist
         else
           STDERR.puts(e.message)
           STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}/|.match(item) }[0])
+          self.class.warn("リトライします... #{url}", false)
           sleep(RETRY_WAIT_SEC)
         end
       rescue => e
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}/|.match(item) }[0])
+        self.class.warn("リトライします... #{url}", false)
         sleep(RETRY_WAIT_SEC)
       end
     end
@@ -329,13 +332,30 @@ class Amazhist
   end
 
   def parse_order_page(url, date, img_url_map)
-    html = fetch_html(url, 'debug_order_page.htm')
+    (0...RETRY_COUNT).each do
+      begin
+        html = fetch_html(url, 'debug_order_page.htm')
 
-    if (!html.xpath('//b[contains(text(), "デジタル注文")]').empty?) then
-      return parse_order_digital(html, date, img_url_map)
-    else
-      return parse_order_normal(html, date)
+        error_message = html.xpath('//div[@class="a-box a-alert a-alert-warning a-spacing-large"]' +
+                                   '//h4[@class="a-alert-heading"]')
+        if (!error_message.empty?) then
+          raise StandardError.new(error_message.text.strip)
+        end
+
+        if (!html.xpath('//b[contains(text(), "デジタル注文")]').empty?) then
+          return parse_order_digital(html, date, img_url_map)
+        else
+          return parse_order_normal(html, date)
+        end
+      rescue => e
+        STDERR.puts(e.message)
+        STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}/|.match(item) }[0])
+        self.class.warn("リトライします... #{url}", false)
+        sleep(RETRY_WAIT_SEC)
+      end
     end
+
+    return []
   end
 
   def parse_order_list_page(html, item_list)
