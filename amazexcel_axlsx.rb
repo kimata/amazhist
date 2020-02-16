@@ -263,7 +263,7 @@ class AmazExcel
   end
 
   def insert_header(sheet, style, table_config)
-    STDERR.print Color.green("    - テーブルヘッダを挿入します ")
+    STDERR.print Color.cyan("    - テーブルヘッダを挿入します ")
     STDERR.flush
 
     col_max = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.max
@@ -320,7 +320,7 @@ class AmazExcel
   end
 
   def insert_hist_data(sheet, style, table_config, hist_data)
-    STDERR.print Color.green('    - 履歴データを挿入します ')
+    STDERR.print Color.cyan('    - 履歴データを挿入します ')
     STDERR.flush
 
     col_max = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.max
@@ -398,7 +398,7 @@ class AmazExcel
   end
 
   def insert_hist_image(sheet, table_config, hist_data, img_dir)
-    STDERR.print Color.green('    - サムネイルを挿入します ')
+    STDERR.print Color.cyan('    - サムネイルを挿入します ')
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
