@@ -474,7 +474,7 @@ item_list = []
 end
 
 File.open(json_file_path, 'w') do |file|
-  file.puts JSON.generate(item_list)
+  file.puts JSON.pretty_generate(item_list)
 end
 
 STDERR.puts Color.bold(Color.blue('Writing output file'))
