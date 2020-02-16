@@ -463,31 +463,6 @@ class AmazExcel
     }
   end
 
-
-
-      # table_config[:header][:col].each_key do |name|
-      #   col = table_config[:header][:col][name][:pos]
-
-      #   if (name == :url) then
-      #     sheet.rows[row].cells[col].value = 'URL'
-      #     sheet.add_hyperlink(
-      #       :location => item[name.to_s],
-      #       :ref => sheet.rows[row].cells[col]
-      #     )
-      #   else
-      #     if (table_config[:data][:col].has_key?(name) &&
-      #         table_config[:data][:col][name].has_key?(:type)) then
-      #       sheet.rows[row].cells[col].type = table_config[:data][:col][name][:type]
-      #     end
-      #     if (item.has_key?(name.to_s)) then
-      #       sheet.rows[row].cells[col].value = item[name.to_s]
-      #     end
-      #   end
-
-      #   set_style(sheet.rows[row].cells[col], name, style[:data])
-      # end
-
-
   def build_stat_formula_category(table_config, hist_sheet_info, row)
     # NOTE: row に +1 しているのは Excel のマクロが，one-based なため
     count = %|=COUNTIF(%s!%s%d:%s%d,%s%d)| %
@@ -611,28 +586,6 @@ class AmazExcel
 
   def build_stat_formula_wday(table_config, hist_sheet_info, row)
     # NOTE: row に +1 しているのは Excel のマクロが，one-based なため
-
-      #     count_formula = %|=SUMPRODUCT(--(WEEKDAY(%s!R%dC%d:R%dC%d,2)=%d))| %
-  #       [
-  #        SHEET_NAME[:hist_data],
-  #        hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-  #        hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-  #        i + 1,
-  #       ]
-
-  #     price_formula = %|=SUMPRODUCT((WEEKDAY(%s!R%dC%d:R%dC%d,2)=%d)*%s!R%dC%d:R%dC%d)| %
-  #       [
-  #        SHEET_NAME[:hist_data],
-  #        hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-  #        hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-  #        i + 1,
-  #        SHEET_NAME[:hist_data],
-  #        hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
-  #        hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
-  #       ]
-
-
-
     count = %|=SUMPRODUCT(--(WEEKDAY(%s!%s%d:%s%d,3)=%d))| %
             [
               hist_sheet_info[:name],
