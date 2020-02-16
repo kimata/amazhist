@@ -785,6 +785,10 @@ class AmazExcel
         create_stat_sheet(book, stat_type, hist_data, hist_data_range)
       end
       @package.serialize(excel_path)
+
+      STDERR.puts
+      STDERR.puts '完了しました．'
+      STDERR.puts
     end
   end
 end
