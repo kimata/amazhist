@@ -15,7 +15,7 @@ require 'axlsx'
 require 'pathname'
 require 'rmagick'
 
-# DEBUG = 0
+# DEBUG = 1
 
 class Color
   extend Term::ANSIColor
