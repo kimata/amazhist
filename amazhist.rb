@@ -50,6 +50,8 @@ require 'uri'
 # TRACE = 1 # 定義すると，取得した Web ページをデバッグ用に保存します
 # DEBUG = 1 # 定義すると，デバッグ用に保存したファイルからページを読み込みます
 
+ENV['SSL_CERT_FILE'] = File.join(File.dirname($0), 'cert.pem')
+
 class Color
   extend Term::ANSIColor
 end
@@ -128,7 +130,7 @@ class Amazhist
         break
       end
     end
-    raise StandardError.new('ログインに失敗しました．')
+    error('ログインに失敗しました．')
   end
 
   def fetch_html(url, file_path)
