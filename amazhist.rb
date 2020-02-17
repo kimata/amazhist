@@ -442,6 +442,11 @@ class Amazhist
   end
 end
 
+def error(message)
+  STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
+  exit
+end
+
 def show_usage()
   puts <<"EOS"
 ■使い方
