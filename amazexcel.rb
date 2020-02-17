@@ -749,9 +749,9 @@ if (params['h']) then
 end
 
 arg = ARG_DEFAULT.dup
-ARG_DEFAULT[:json_file_path]    = params['j'] if params['j']
-ARG_DEFAULT[:img_dir_path]      = params['t'] if params['t']
-ARG_DEFAULT[:excel_file_path]   = params['o'] if params['o']
+arg[:json_file_path]    = params['j'] if params['j']
+arg[:img_dir_path]      = params['t'] if params['t']
+arg[:excel_file_path]   = params['o'] if params['o']
 
 check_arg(arg)
 
