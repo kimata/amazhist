@@ -8,13 +8,14 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 - 各種グラフの自動生成
 
 【出力サンプル】
+
 ![出力サンプル](sample.png)
 
 # 実行方法
 
 ## Windows の場合
 
-1. amazhist.exe をダブルクリック．
+1. `amazhist.exe` をダブルクリック．
 
 2. Amazon のログイン ID とパスワードを入力．(入力後 ENTER を押すことで確定されます．以下同様)
 
@@ -22,7 +23,7 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 4. 履歴情報の収集が始まりますので，終わるまで数時間待ちます．
 
-5. amazexcel.exe をダブルクリック．
+5. `amazexcel.exe` をダブルクリック．
 
 6. 実行して良いか聞かれるので，内容に問題無ければ Y を入力．
 
@@ -40,7 +41,7 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 ### 実行
 
-1. amazhist.rb を実行．
+1. `amazhist.rb` を実行．
 
 2. Amazon のログイン ID とパスワードを入力．(入力後 ENTER を押すことで確定されます．以下同様)
 
@@ -48,7 +49,7 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 4. 履歴情報の収集が始まりますので，終わるまで数時間待ちます．
 
-5. amazexcel_axlsx.rb を実行．
+5. `amazexcel_axlsx.rb` を実行．
 
 6. 実行して良いか聞かれるので，内容に問題無ければ Y を入力．
 
