@@ -440,40 +440,93 @@ class Amazhist
   end
 end
 
-params = ARGV.getopts('j:t:')
-if (params['j'] == nil) then
-  Amazhist.error('履歴情報を保存するファイルのパスが指定されていません．' +
-                 '(-j で指定します)')
+def show_usage()
+  puts <<"EOS"
+■使い方
+#{File.basename(__FILE__)} -j amazhist.json -t img -o amazhist.xlsx
+
+引数の意味は以下なります．省略した場合，上記と同じ内容で実行します．
+
+  -j 履歴情報を保存する JSON ファイルのパス (出力)
+
+  -t サムネイル画像が保存されているディレクトリのパス (出力)
+
+EOS
+end
+
+def check_arg(arg)
+  puts <<"EOS"
+次の設定で実行します．
+- ログイン ID               : #{arg[:amazon_id]}
+- ログイン PASS             : #{arg[:amazon_pass]}
+
+- 履歴情報ファイル          : #{arg[:json_file_path]}
+- サムネイルディレクトリ    : #{arg[:img_dir_path]}
+
+続けますか？ [Y/n]
+EOS
+  answer = gets().strip
+
+  if ((answer != '') && (answer.downcase != 'y')) then
+    error('中断しました')
+    exit
+  end
+end
+
+def request_input(label)
+  print "#{label}: "
+
+  return gets().strip
+end
+
+def login_info(arg)
+  if (ENV['amazon_id'] == nil) then
+    arg[:amazon_id] = request_input('Amazon ログイン ID  ')
+  else
+    arg[:amazon_id] = ENV['amazon_id']
+  end
+
+  if (ENV['amazon_pass'] == nil) then
+    arg[:amazon_pass] = request_input('Amazon ログイン PASS')
+  else
+    arg[:amazon_pass] = ENV['amazon_pass']
+  end
+end
+
+ARG_DEFAULT = {
+  json_file_path:   'amazhist.json',
+  img_dir_path:     'img',
+}
+
+params = ARGV.getopts('j:t:o:h')
+
+if (params['h']) then
+  show_usage()
   exit
 end
-if (params['t'] == nil) then
-  Amazhist.error('サムネイル画像を保存するディレクトリのパスが指定されていません．' + 
-                 '(-t で指定します)')
-  exit
-end
 
-json_file_path = params['j']
-img_dir_path = params['t']
+arg = ARG_DEFAULT.dup
+arg[:json_file_path]    = params['j'] if params['j']
+arg[:img_dir_path]      = params['t'] if params['t']
 
-if ((ENV['amazon_id'] == nil) || (ENV['amazon_pass'] == nil)) then
-  STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')),
-                            '環境変数 amazon_id と amazon_pass を設定してください．' ]
-  exit(-1)
-end
+login_info(arg)
+check_arg(arg)
 
-FileUtils.mkdir_p(img_dir_path)
-amazhist = Amazhist.new({
-                          id: ENV['amazon_id'],     # Amazon の ID
-                          pass: ENV['amazon_pass'], # Amazon の パスワード
-                        },
-                        img_dir_path)
+FileUtils.mkdir_p(arg[:img_dir_path])
+amazhist = Amazhist.new(
+  {
+    id: arg[:amazon_id],        # Amazon の ID
+    pass: arg[:amazon_pass],    # Amazon の パスワード
+  },
+  arg[:img_dir_path]
+)
 
 item_list = []
 (2000..(Date.today.year)).each do |year|
   item_list.concat(amazhist.get_item_list(year))
 end
 
-File.open(json_file_path, 'w') do |file|
+File.open(arg[:json_file_path], 'w') do |file|
   file.puts JSON.pretty_generate(item_list)
 end
 
