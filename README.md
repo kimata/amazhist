@@ -57,7 +57,7 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 8. 完了したら，エクセルファイル amazexcel.xlsx が生成されています．
 
-#Tips
+# Tips
 
 ## コマンドラインオプション
 
