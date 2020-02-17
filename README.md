@@ -90,6 +90,6 @@ amazexcel.rb が生成するファイルには集計シートにグラフが挿�
 
 ただし，amazexcel.rb は動作に際して Win32OLE を使用しています．そのため，実行できるのは Windows に限られます
 
-#ライセンス
+# ライセンス
 
 Apache License Version 2.0 を適用します．
