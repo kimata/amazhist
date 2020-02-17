@@ -759,21 +759,21 @@ class AmazExcel
       end
       hist_data.sort_by! {|item| item['date'] }
 
-      # MEMO: サンプルデータ作成用
-      tmp_hist_data = hist_data
-      hist_data = []
-      (2013..2015).each do |year|
-        (1..12).each do |month|
-          data = tmp_hist_data.select {|item|
-            (item['date'].year == year) && (item['date'].month == month)
-          }
-          if (data.size < 2) then
-            hist_data.concat(data)
-          else
-            hist_data.concat(data[(0..rand(1..3))])
-          end
-        end
-      end
+      # # MEMO: サンプルデータ作成用
+      # tmp_hist_data = hist_data
+      # hist_data = []
+      # (2013..2015).each do |year|
+      #   (1..12).each do |month|
+      #     data = tmp_hist_data.select {|item|
+      #       (item['date'].year == year) && (item['date'].month == month)
+      #     }
+      #     if (data.size < 2) then
+      #       hist_data.concat(data)
+      #     else
+      #       hist_data.concat(data[(0..rand(1..3))])
+      #     end
+      #   end
+      # end
 
       book = @package.workbook
 
