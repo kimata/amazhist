@@ -15,21 +15,21 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 次の 2 つのスクリプトから構成されています．
 
-`amazhist.rb`
+## `amazhist.rb`
 
-:   Amazon にアクセスし，購入履歴情報を収集し，JSON ファイルに保存します．また，商品のサムネイル画像も収集します．
+Amazon にアクセスし，購入履歴情報を収集し，JSON ファイルに保存します．また，商品のサムネイル画像も収集します．
 
-`amazexcel.rb`
+## `amazexcel.rb`
 
-:   JSON ファイルから，Excel ファイルを生成します．
+JSON ファイルから，Excel ファイルを生成します．
 
 # 実行方法
 
 ## Windows の場合
 
 `amazhist.exe` を実行した後，`amazexcel.exe` 実行します．
-`amazhist.exe` を実行すると Amazon のログイン ID とパスワードを聞かれますので，入力します．
 
+`amazhist.exe` を実行すると Amazon のログイン ID とパスワードを聞かれますので，入力します．
 その後実行して良いか聞かれるので問題無ければ ENTER を押します．`amazhist.exe` も同様にします．
 
 購入履歴の量次第ですが，`amazhist.exe` の実行には数時間，`amazexcel.exe` の実行には十分程度かかります．
