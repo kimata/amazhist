@@ -50,7 +50,9 @@ require 'uri'
 # TRACE = 1 # 定義すると，取得した Web ページをデバッグ用に保存します
 # DEBUG = 1 # 定義すると，デバッグ用に保存したファイルからページを読み込みます
 
-ENV['SSL_CERT_FILE'] = File.join(File.dirname($0), 'cert.pem')
+if (ENV.has_key?('OCRA_EXECUTABLE'))
+  ENV['SSL_CERT_FILE'] = File.join(File.dirname($0), 'cert.pem')
+end
 
 class Color
   extend Term::ANSIColor
@@ -462,6 +464,8 @@ EOS
 end
 
 def check_arg(arg)
+  return if (defined?(Ocra))
+
   puts <<"EOS"
 次の設定で実行します．
 - ログイン ID               : #{arg[:amazon_id]}
@@ -472,6 +476,7 @@ def check_arg(arg)
 
 続けますか？ [Y/n]
 EOS
+
   answer = gets().strip
 
   if ((answer != '') && (answer.downcase != 'y')) then
@@ -487,6 +492,8 @@ def request_input(label)
 end
 
 def login_info(arg)
+  return if (defined?(Ocra))
+
   if (ENV['amazon_id'] == nil) then
     arg[:amazon_id] = request_input('Amazon ログイン ID  ')
   else
@@ -527,6 +534,8 @@ amazhist = Amazhist.new(
   },
   arg[:img_dir_path]
 )
+
+exit if (defined?(Ocra))
 
 item_list = []
 (2000..(Date.today.year)).each do |year|

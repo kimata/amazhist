@@ -657,6 +657,8 @@ class AmazExcel
 
   def convert(json_path, img_dir_path, excel_path)
     begin
+      return if (defined?(Ocra))
+
       img_dir = Pathname.new(img_dir_path)
       hist_data = open(json_path) {|io| JSON.load(io) }
       hist_data.sort_by! {|item| Date.strptime(item["date"], "%Y-%m-%d") }
@@ -719,6 +721,8 @@ EOS
 end
 
 def check_arg(arg)
+  return if (defined?(Ocra))
+
   puts <<"EOS"
 次の設定で実行します．
 - 履歴情報ファイル          : #{arg[:json_file_path]}
