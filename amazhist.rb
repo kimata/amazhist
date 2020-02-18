@@ -59,13 +59,13 @@ class Color
 end
 
 class Amazhist
-  AMAZON_URL      = 'http://www.amazon.co.jp/'
+  AMAZON_URL      = 'https://www.amazon.co.jp/'
 
   HIST_URL_FORMAT = 'https://www.amazon.co.jp/gp/css/order-history?' +
                     'digitalOrders=1&unifiedOrders=1&orderFilter=year-%d&startIndex=%d'
   # NOTE: 下記アドレスの「?」以降を省略すると，時々ページの表示内容が変わり，
   # カテゴリを取得できなくなる
-  ITEM_URL_FORMAT = 'http://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0'
+  ITEM_URL_FORMAT = 'https://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0'
   RETRY_COUNT     = 5
   RETRY_WAIT_SEC  = 5
   COOKIE_DUMP     = 'cookie.txt'
