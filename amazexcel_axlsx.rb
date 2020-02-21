@@ -5,16 +5,16 @@
 # Amazon の全購入履歴を Excel ファイルに見やすく出力するスクリプトです．
 # amazhist.rb と組み合わせて使用します．
 
-require 'date'
-require 'json'
-require 'optparse'
-require 'pathname'
-require 'set'
-require 'term/ansicolor'
-require 'axlsx'
-require 'pathname'
-require 'rmagick'
-require 'docopt'
+require "date"
+require "json"
+require "optparse"
+require "pathname"
+require "set"
+require "term/ansicolor"
+require "axlsx"
+require "pathname"
+require "rmagick"
+require "docopt"
 
 DOCOPT = <<DOCOPT
 Usage: amazexcel_axlsx.py [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
@@ -47,33 +47,33 @@ class AmazExcel
         pos: 1,
         height: 18,
         style: {
-          font_name: 'メイリオ',
-          bg_color: '333333',
-          fg_color: 'FFFFFF',
+          font_name: "メイリオ",
+          bg_color: "333333",
+          fg_color: "FFFFFF",
           alignment: {
             indent: 1,
           },
         },
       },
       col: {
-        date:           { label: '日付',            pos: 1,     width: 23, },
-        name:           { label: '商品名',          pos: 2,     width: 70, },
-        image:          { label: '画像',            pos: 3,     width: 8,  },
-        count:          { label: '数量',            pos: 4,     width: 8,  },
-        price:          { label: '価格',            pos: 5,     width: 16, },
-        category:       { label: 'カテゴリ',        pos: 6,     width: 21, },
-        subcategory:    { label: 'サブカテゴリ',    pos: 7,     width: 30, },
-        seller:         { label: '売り手',          pos: 8,     width: 29, },
-        id:             { label: '商品ID',          pos: 9,     width: 17, },
-        url:            { label: '商品URL',         pos: 10,    width: 11, },
+        date: { label: "日付", pos: 1, width: 23 },
+        name: { label: "商品名", pos: 2, width: 70 },
+        image: { label: "画像", pos: 3, width: 8 },
+        count: { label: "数量", pos: 4, width: 8 },
+        price: { label: "価格", pos: 5, width: 16 },
+        category: { label: "カテゴリ", pos: 6, width: 21 },
+        subcategory: { label: "サブカテゴリ", pos: 7, width: 30 },
+        seller: { label: "売り手", pos: 8, width: 29 },
+        id: { label: "商品ID", pos: 9, width: 17 },
+        url: { label: "商品URL", pos: 10, width: 11 },
       },
     },
     data: {
       row: {
         height: 50,
         style: {
-          font_name: 'メイリオ',
-          fg_color: '333333',
+          font_name: "メイリオ",
+          fg_color: "333333",
           alignment: {
             vertical: :center,
             indent: 1,
@@ -81,7 +81,7 @@ class AmazExcel
           border: {
             edges: [:top, :bottom],
             style: :thin,
-            color: '333333',
+            color: "333333",
           },
         },
       },
@@ -89,7 +89,7 @@ class AmazExcel
         date: {
           type: :date,
           style: {
-            format_code: 'yyyy年mm月dd日(aaa)',
+            format_code: "yyyy年mm月dd日(aaa)",
           },
         },
         name: {
@@ -134,26 +134,26 @@ class AmazExcel
         pos: 1,
         height: 18,
         style: {
-          font_name: 'メイリオ',
-          bg_color: '333333',
-          fg_color: 'FFFFFF',
+          font_name: "メイリオ",
+          bg_color: "333333",
+          fg_color: "FFFFFF",
           alignment: {
             indent: 1,
           },
         },
       },
       col: {
-        target:         {                           pos: 1,     width: 23, },
-        count:          { label: '合計件数',        pos: 2,     width: 12,  },
-        price:          { label: '合計価格',        pos: 3,     width: 18, },
+        target: { pos: 1, width: 23 },
+        count: { label: "合計件数", pos: 2, width: 12 },
+        price: { label: "合計価格", pos: 3, width: 18 },
       },
     },
     data: {
       row: {
         height: 18,
         style: {
-          font_name: 'メイリオ',
-          fg_color: '333333',
+          font_name: "メイリオ",
+          fg_color: "333333",
           alignment: {
             vertical: :center,
             indent: 1,
@@ -161,7 +161,7 @@ class AmazExcel
           border: {
             edges: [:top, :bottom],
             style: :thin,
-            color: '333333',
+            color: "333333",
           },
         },
       },
@@ -172,13 +172,13 @@ class AmazExcel
           },
         },
         count: {
-          databar_color: '63C384',
+          databar_color: "63C384",
           style: {
             format_code: %|0_ |,
           },
         },
         price: {
-          databar_color: 'FF555A',
+          databar_color: "FF555A",
           style: {
             format_code: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* -_ ;_ @_ |, # NOTE: 末尾の空白要
           },
@@ -189,7 +189,7 @@ class AmazExcel
 
   def initialize
     @package = Axlsx::Package.new
-    @tmp_dir_path = Dir.mktmpdir('amazexcel-')
+    @tmp_dir_path = Dir.mktmpdir("amazexcel-")
   end
 
   def create_style(sheet, table_config)
@@ -200,21 +200,21 @@ class AmazExcel
         col: {},
       }
 
-      if (config[:row].has_key?(:style)) then
-        style[type][:row] =  sheet.styles.add_style(config[:row][:style])
+      if (config[:row].has_key?(:style))
+        style[type][:row] = sheet.styles.add_style(config[:row][:style])
       end
       config[:col].each do |key, value|
         next if (!value.has_key?(:style))
 
         col_style = config[:row][:style].dup
         value[:style].each do |k, v|
-          if (col_style[k].is_a?(Hash)) then
+          if (col_style[k].is_a?(Hash))
             col_style[k] = col_style[k].merge(v)
           else
             col_style[k] = v
           end
         end
-        style[type][:col][key] =  sheet.styles.add_style(col_style)
+        style[type][:col][key] = sheet.styles.add_style(col_style)
       end
     end
 
@@ -224,11 +224,11 @@ class AmazExcel
   end
 
   def set_style(cell, name, style_map)
-    if (style_map.has_key?(:row)) then
+    if (style_map.has_key?(:row))
       cell.style = style_map[:row]
     end
 
-    if (style_map[:col].has_key?(name)) then
+    if (style_map[:col].has_key?(name))
       cell.style = style_map[:col][name]
     end
   end
@@ -237,12 +237,12 @@ class AmazExcel
     STDERR.print Color.cyan("    - テーブルヘッダを挿入します ")
     STDERR.flush
 
-    col_max = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.max
+    col_max = table_config[:header][:col].values.map { |col_config| col_config[:pos] }.max
 
     row = table_config[:header][:row][:pos]
 
-    (row+1).times do
-      sheet.add_row(Array.new(col_max + 1, ''))
+    (row + 1).times do
+      sheet.add_row(Array.new(col_max + 1, ""))
     end
 
     width_list = Array.new(col_max, 8)
@@ -253,7 +253,7 @@ class AmazExcel
       sheet.rows[row].cells[col].value = col_config[:label]
       set_style(sheet.rows[row].cells[col], name, style[:header])
 
-      if col_config.has_key?(:width) then
+      if col_config.has_key?(:width)
         width_list[col] = col_config[:width]
       end
     end
@@ -263,26 +263,26 @@ class AmazExcel
   end
 
   def insert_item(sheet, table_config, style, row, col_max, item)
-    sheet.add_row(Array.new(col_max + 1, ''))
-    if (table_config[:data][:row].has_key?(:height)) then
+    sheet.add_row(Array.new(col_max + 1, ""))
+    if (table_config[:data][:row].has_key?(:height))
       sheet.rows[row].height = table_config[:data][:row][:height]
     end
 
     table_config[:header][:col].each_key do |name|
       col = table_config[:header][:col][name][:pos]
 
-      if (name == :url) then
-        sheet.rows[row].cells[col].value = 'URL'
+      if (name == :url)
+        sheet.rows[row].cells[col].value = "URL"
         sheet.add_hyperlink(
           :location => item[name.to_s],
-          :ref => sheet.rows[row].cells[col]
+          :ref => sheet.rows[row].cells[col],
         )
       else
         if (table_config[:data][:col].has_key?(name) &&
-            table_config[:data][:col][name].has_key?(:type)) then
+            table_config[:data][:col][name].has_key?(:type))
           sheet.rows[row].cells[col].type = table_config[:data][:col][name][:type]
         end
-        if (item.has_key?(name.to_s)) then
+        if (item.has_key?(name.to_s))
           sheet.rows[row].cells[col].value = item[name.to_s]
         end
       end
@@ -291,21 +291,21 @@ class AmazExcel
   end
 
   def insert_hist_data(sheet, style, table_config, hist_data)
-    STDERR.print Color.cyan('    - 履歴データを挿入します ')
+    STDERR.print Color.cyan("    - 履歴データを挿入します ")
     STDERR.flush
 
-    col_max = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.max
+    col_max = table_config[:header][:col].values.map { |col_config| col_config[:pos] }.max
 
     hist_data.each_with_index do |item, i|
       row = table_config[:header][:row][:pos] + 1 + i
       insert_item(sheet, table_config, style, row, col_max, item)
 
-      STDERR.print '.'
+      STDERR.print "."
       STDERR.flush
 
       # NOTE: for development
-      if (defined? DEBUG) then
-        if (i > 10) then
+      if (defined? DEBUG)
+        if (i > 10)
           break
         end
       end
@@ -313,7 +313,7 @@ class AmazExcel
 
     row = sheet.rows.size
     col = table_config[:header][:col][:price][:pos]
-    sheet.add_row(Array.new(col_max + 1, ''))
+    sheet.add_row(Array.new(col_max + 1, ""))
 
     sheet.rows[row].cells[col].value =
       %|=SUM(%s%d:%s%d)| %
@@ -321,7 +321,7 @@ class AmazExcel
         num2alpha(table_config[:header][:col][:price][:pos]),
         table_config[:header][:row][:pos] + 1,
         num2alpha(table_config[:header][:col][:price][:pos]),
-        row
+        row,
       ]
     set_style(sheet.rows[row].cells[col], :price_sum, style[:data])
 
@@ -348,34 +348,34 @@ class AmazExcel
     width = image.columns
     height = image.rows
 
-    if (width >= (height*1.1)) then
+    if (width >= (height * 1.1))
       height = width
     else
-      height = (height*1.1).to_i
-      width  = height
+      height = (height * 1.1).to_i
+      width = height
     end
 
     pad_image = Magick::Image.new(width, height).matte_floodfill(1, 1)
     pad_image.composite!(image, Magick::CenterGravity, Magick::OverCompositeOp)
 
-    pad_image_path = (Pathname(@tmp_dir_path) + Pathname(img_path).basename).sub_ext('.png')
+    pad_image_path = (Pathname(@tmp_dir_path) + Pathname(img_path).basename).sub_ext(".png")
     pad_image.write(pad_image_path)
 
     return {
-      path: pad_image_path,
-      width: width,
-      height: height,
-    }
+             path: pad_image_path,
+             width: width,
+             height: height,
+           }
   end
 
   def insert_hist_image(sheet, table_config, hist_data, img_dir)
-    STDERR.print Color.cyan('    - サムネイルを挿入します ')
+    STDERR.print Color.cyan("    - サムネイルを挿入します ")
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
-      img_path = img_dir + ('%s.jpg' % [ item['id'] ])
-      if (!img_path.exist?) then
-        STDERR.print item['id']
+      img_path = img_dir + ("%s.jpg" % [item["id"]])
+      if (!img_path.exist?)
+        STDERR.print item["id"]
         next
       end
 
@@ -391,7 +391,7 @@ class AmazExcel
       width = cell_width
       height = cell_height
 
-      if ((pad_image[:width] / cell_width) > (pad_image[:height] / cell_height)) then
+      if ((pad_image[:width] / cell_width) > (pad_image[:height] / cell_height))
         height = pad_image[:height] * cell_width / pad_image[:width]
       else
         width = pad_image[:width] * cell_height / pad_image[:height]
@@ -405,12 +405,12 @@ class AmazExcel
                        table_config[:header][:row][:pos] + 1 + i)
       end
 
-      STDERR.print '.'
+      STDERR.print "."
       STDERR.flush
 
       # NOTE: for development
-      if (defined? DEBUG) then
-        if (i > 10) then
+      if (defined? DEBUG)
+        if (i > 10)
           break
         end
       end
@@ -419,29 +419,29 @@ class AmazExcel
   end
 
   def num2alpha(number)
-    alpha = 'A'
+    alpha = "A"
     number.times { alpha.succ! }
     return alpha
   end
 
   def config_view(sheet, table_config, pin_name)
-    STDERR.print Color.cyan('    - ビューを設定します ')
+    STDERR.print Color.cyan("    - ビューを設定します ")
     STDERR.flush
 
-    col_min = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.min
-    col_max = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.max
+    col_min = table_config[:header][:col].values.map { |col_config| col_config[:pos] }.min
+    col_max = table_config[:header][:col].values.map { |col_config| col_config[:pos] }.max
 
-    sheet.auto_filter = '%s%d:%s%s' % [
-      num2alpha(col_min), table_config[:header][:row][:pos]+1,
-      num2alpha(col_max), sheet.rows.size
+    sheet.auto_filter = "%s%d:%s%s" % [
+      num2alpha(col_min), table_config[:header][:row][:pos] + 1,
+      num2alpha(col_max), sheet.rows.size,
     ]
 
     sheet.sheet_view.pane do |pane|
-      spilit_col = table_config[:header][:col][pin_name][:pos]+1
-      spilit_row = table_config[:header][:row][:pos]+1
+      spilit_col = table_config[:header][:col][pin_name][:pos] + 1
+      spilit_row = table_config[:header][:row][:pos] + 1
 
       pane.state = :frozen_split
-      pane.top_left_cell = '%s%d' % [ num2alpha(spilit_col), spilit_row+1 ]
+      pane.top_left_cell = "%s%d" % [num2alpha(spilit_col), spilit_row + 1]
       pane.x_split = spilit_col
       pane.y_split = spilit_row
     end
@@ -464,15 +464,15 @@ class AmazExcel
     STDERR.puts
 
     return {
-      start: {
-        row: HIST_CONFIG[:header][:row][:pos] + 1,
-        col: HIST_CONFIG[:header][:col].values.map {|col_config| col_config[:pos] }.min,
-      },
-      last: {
-        row: sheet.rows.size - 2, # NOTE: 末尾に合計金額の行があるので -1 ではなく -2
-        col: HIST_CONFIG[:header][:col].values.map {|col_config| col_config[:pos] }.max,
-      },
-    }
+             start: {
+               row: HIST_CONFIG[:header][:row][:pos] + 1,
+               col: HIST_CONFIG[:header][:col].values.map { |col_config| col_config[:pos] }.min,
+             },
+             last: {
+               row: sheet.rows.size - 2, # NOTE: 末尾に合計金額の行があるので -1 ではなく -2
+               col: HIST_CONFIG[:header][:col].values.map { |col_config| col_config[:pos] }.max,
+             },
+           }
   end
 
   def build_stat_formula_category(table_config, hist_sheet_info, row)
@@ -487,7 +487,7 @@ class AmazExcel
               hist_sheet_info[:range][:last][:row] + 1,
 
               num2alpha(table_config[:header][:col][:target][:pos]),
-              row + 1
+              row + 1,
             ]
     price = %|=SUMIF(%s!%s%d:%s%d,%s%d,%s!%s%d:%s%d)| %
             [
@@ -506,13 +506,13 @@ class AmazExcel
               num2alpha(hist_sheet_info[:config][:header][:col][:price][:pos]),
               hist_sheet_info[:range][:start][:row] + 1,
               num2alpha(hist_sheet_info[:config][:header][:col][:price][:pos]),
-              hist_sheet_info[:range][:last][:row] + 1
+              hist_sheet_info[:range][:last][:row] + 1,
             ]
 
     return {
-      count: count,
-      price: price,
-    }
+             count: count,
+             price: price,
+           }
   end
 
   def build_stat_formula_yearly(table_config, hist_sheet_info, row)
@@ -550,9 +550,9 @@ class AmazExcel
             ]
 
     return {
-      count: count,
-      price: price,
-    }
+             count: count,
+             price: price,
+           }
   end
 
   def build_stat_formula_monthly(table_config, hist_sheet_info, row)
@@ -591,9 +591,9 @@ class AmazExcel
             ]
 
     return {
-      count: count,
-      price: price,
-    }
+             count: count,
+             price: price,
+           }
   end
 
   def build_stat_formula_wday(table_config, hist_sheet_info, row)
@@ -607,7 +607,7 @@ class AmazExcel
               num2alpha(hist_sheet_info[:config][:header][:col][:date][:pos]),
               hist_sheet_info[:range][:last][:row] + 1,
 
-              row - (table_config[:header][:row][:pos] + 1)
+              row - (table_config[:header][:row][:pos] + 1),
             ]
 
     price = %|=SUMPRODUCT((WEEKDAY(%s!%s%d:%s%d,3)=%d)*%s!%s%d:%s%d)| %
@@ -630,9 +630,9 @@ class AmazExcel
             ]
 
     return {
-      count: count,
-      price: price,
-    }
+             count: count,
+             price: price,
+           }
   end
 
   def create_stat_sheet_impl(book, sheet_config, hist_sheet_info)
@@ -646,29 +646,29 @@ class AmazExcel
     style = create_style(sheet, table_config)
     insert_header(sheet, style, table_config)
 
-    col_max = table_config[:header][:col].values.map {|col_config| col_config[:pos] }.max
+    col_max = table_config[:header][:col].values.map { |col_config| col_config[:pos] }.max
 
-    STDERR.print Color.cyan('    - データを挿入します ')
+    STDERR.print Color.cyan("    - データを挿入します ")
     STDERR.flush
 
     sheet_config[:target_list].each_with_index do |target, i|
       row = table_config[:header][:row][:pos] + 1 + i
 
-      sheet.add_row(Array.new(col_max + 1, ''))
-      if (table_config[:data][:row].has_key?(:height)) then
+      sheet.add_row(Array.new(col_max + 1, ""))
+      if (table_config[:data][:row].has_key?(:height))
         sheet.rows[row].height = table_config[:data][:row][:height]
       end
 
       formula = sheet_config[:formula_func].call(table_config, hist_sheet_info, row)
 
       item = {
-        'target' => target,
-        'count' => formula[:count],
-        'price' => formula[:price],
+        "target" => target,
+        "count" => formula[:count],
+        "price" => formula[:price],
       }
       insert_item(sheet, table_config, style, row, col_max, item)
 
-      STDERR.print '.'
+      STDERR.print "."
       STDERR.flush
     end
 
@@ -677,12 +677,12 @@ class AmazExcel
 
       sheet.add_conditional_formatting(
         %|%s%d:%s%d| %
-            [
-              num2alpha(table_config[:header][:col][name][:pos]),
-              table_config[:header][:row][:pos] + 2,
-              num2alpha(table_config[:header][:col][name][:pos]),
-              sheet.rows.size
-            ],
+          [
+            num2alpha(table_config[:header][:col][name][:pos]),
+            table_config[:header][:row][:pos] + 2,
+            num2alpha(table_config[:header][:col][name][:pos]),
+            sheet.rows.size,
+          ],
         {
           type: :dataBar,
           priority: 1,
@@ -706,35 +706,35 @@ class AmazExcel
     }
 
     sheet_config = {
-      name: SHEET_NAME[stat_type]
+      name: SHEET_NAME[stat_type],
     }
 
     case stat_type
     when :category_stat
       category_set = Set.new
       hist_sheet_info[:data].each do |item|
-        category_set.add(item['category'])
+        category_set.add(item["category"])
       end
-      category_set.delete('')
+      category_set.delete("")
       sheet_config.merge!({
         label: hist_sheet_info[:config][:header][:col][:category][:label],
         target_list: category_set.sort.to_a,
-        formula_func: method(:build_stat_formula_category)
+        formula_func: method(:build_stat_formula_category),
       })
     when :yearly_stat
-      year_start = hist_data[0]['date'].year
-      year_end = hist_data[-1]['date'].year
+      year_start = hist_data[0]["date"].year
+      year_end = hist_data[-1]["date"].year
 
       sheet_config.merge!({
-        label: '年',
+        label: "年",
         target_list: (year_start..year_end),
-        formula_func: method(:build_stat_formula_yearly)
+        formula_func: method(:build_stat_formula_yearly),
       })
     when :monthly_stat
-      year_start = hist_data[0]['date'].year
-      year_end = hist_data[-1]['date'].year
-      month_start = hist_data[0]['date'].month
-      month_end = hist_data[-1]['date'].month
+      year_start = hist_data[0]["date"].year
+      year_end = hist_data[-1]["date"].year
+      month_start = hist_data[0]["date"].month
+      month_end = hist_data[-1]["date"].month
 
       target = []
       (year_start..year_end).each do |year|
@@ -742,19 +742,19 @@ class AmazExcel
           next if ((year == year_start) && (month < month_start))
           next if ((year == year_end) && (month > month_end))
 
-          target.push('%02d年%02d月' % [ year, month ])
+          target.push("%02d年%02d月" % [year, month])
         end
       end
       sheet_config.merge!({
-        label: '年月',
+        label: "年月",
         target_list: target,
-        formula_func: method(:build_stat_formula_monthly)
+        formula_func: method(:build_stat_formula_monthly),
       })
     when :wday_stat
       sheet_config.merge!({
-        label: '曜日',
+        label: "曜日",
         target_list: %w(月 火 水 木 金 土 日),
-        formula_func: method(:build_stat_formula_wday)
+        formula_func: method(:build_stat_formula_wday),
       })
     end
 
@@ -764,12 +764,12 @@ class AmazExcel
   def convert(json_path, img_dir_path, excel_path)
     begin
       img_dir = Pathname.new(img_dir_path)
-      hist_data = open(json_path) {|io| JSON.load(io) }
+      hist_data = open(json_path) { |io| JSON.load(io) }
       hist_data = hist_data.map do |item|
-        item['date'] = Date.strptime(item['date'], "%Y-%m-%d")
+        item["date"] = Date.strptime(item["date"], "%Y-%m-%d")
         item
       end
-      hist_data.sort_by! {|item| item['date'] }
+      hist_data.sort_by! { |item| item["date"] }
 
       # # MEMO: サンプルデータ作成用
       # tmp_hist_data = hist_data
@@ -792,43 +792,43 @@ class AmazExcel
       hist_data_range = create_hist_sheet(book, hist_data, img_dir)
 
       [
-        :category_stat, :yearly_stat, :monthly_stat, :wday_stat
+        :category_stat, :yearly_stat, :monthly_stat, :wday_stat,
       ].each_with_index do |stat_type, i|
         create_stat_sheet(book, stat_type, hist_data, hist_data_range)
       end
       @package.serialize(excel_path)
 
       STDERR.puts
-      STDERR.puts '完了しました．'
+      STDERR.puts "完了しました．"
       STDERR.puts
     end
   end
 end
 
 def error(message)
-  STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
+  STDERR.puts "[%s] %s" % [Color.bold(Color.red("ERROR")), message]
   exit
 end
 
 def check_arg(args)
-  [ args['-j'], args['-t'] ].each do |path|
-    if not Pathname.new(path).exist? then
+  [args["-j"], args["-t"]].each do |path|
+    if not Pathname.new(path).exist?
       error("「#{path}」は存在しません．amazhist.rb を実行して生成してください．")
     end
   end
 
   puts <<"EOS"
 次の設定で実行します．
-- 履歴情報ファイル          : #{args['-j']}
-- サムネイルディレクトリ    : #{args['-t']}
-- エクセルファイル(出力先)  : #{args['-o']}
+- 履歴情報ファイル          : #{args["-j"]}
+- サムネイルディレクトリ    : #{args["-t"]}
+- エクセルファイル(出力先)  : #{args["-o"]}
 
 続けますか？ [Y/n]
 EOS
   answer = gets().strip
 
-  if ((answer != '') && (answer.downcase != 'y')) then
-    error('中断しました')
+  if ((answer != "") && (answer.downcase != "y"))
+    error("中断しました")
     exit
   end
 end
@@ -839,7 +839,7 @@ begin
   check_arg(args)
 
   amazexcel = AmazExcel.new
-  amazexcel.convert(args['-j'], args['-t'], args['-o'])
+  amazexcel.convert(args["-j"], args["-t"], args["-o"])
 rescue Docopt::Exit => e
   puts e.message
 end

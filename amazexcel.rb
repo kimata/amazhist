@@ -7,14 +7,14 @@
 #
 # WIN32OLE を使用するため，基本的に Windows で実行することを想定しています．
 
-require 'date'
-require 'json'
-require 'optparse'
-require 'pathname'
-require 'set'
-require 'term/ansicolor'
-require 'win32ole'
-require 'docopt'
+require "date"
+require "json"
+require "optparse"
+require "pathname"
+require "set"
+require "term/ansicolor"
+require "win32ole"
+require "docopt"
 
 DOCOPT = <<DOCOPT
 Usage: amazexcel.py [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
@@ -48,7 +48,7 @@ class ExcelApp
   end
 
   def save(book, path)
-    fso = WIN32OLE.new('Scripting.FileSystemObject')
+    fso = WIN32OLE.new("Scripting.FileSystemObject")
     full_path = fso.GetAbsolutePathName(path)
 
     book.SaveAs({
@@ -62,7 +62,7 @@ class ExcelApp
   end
 
   def quit
-    if @excel != nil then
+    if @excel != nil
       @excel.Quit
     end
     @excel = nil
@@ -84,67 +84,67 @@ class AmazExcel
     },
     col: {
       date: {
-        label: "日付",          pos: 2,
+        label: "日付", pos: 2,
         format: %|yyyy"年"mm"月"dd"日"|,
       },
       name: {
-        label: "商品名",        pos: 3,
+        label: "商品名", pos: 3,
         width: 70,
         wrap: true,
       },
       image: {
-        label: "画像",          pos: 4,
+        label: "画像", pos: 4,
         width: 8,
       },
       count: {
-        label: "数量",          pos: 5,
+        label: "数量", pos: 5,
         format: %|0_ |,
         width: 8,
       },
       price: {
-        label: "価格",          pos: 6,
+        label: "価格", pos: 6,
         format: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* "-"_ ;_ @_ |, # NOTE: 末尾の空白要
       },
       category: {
-        label: "カテゴリ",      pos: 7,
+        label: "カテゴリ", pos: 7,
         width: 15,
       },
       subcategory: {
-        label: "サブカテゴリ",  pos: 8,
+        label: "サブカテゴリ", pos: 8,
         width: 22,
       },
       seller: {
-        label: "売り手",        pos: 9,
+        label: "売り手", pos: 9,
         width: 29,
         wrap: true,
       },
       id: {
-        label: "商品ID",        pos: 10,
+        label: "商品ID", pos: 10,
         width: 17,
-        format: %|@|
+        format: %|@|,
       },
       url: {
-        label: "商品URL",       pos: 11,
+        label: "商品URL", pos: 11,
         width: 11,
       },
-    }
+    },
   }
   STAT_HEADER = {
     row: {
-      pos: 2,      height: 20,
+      pos: 2, height: 20,
     },
     col: {
-      target:   {
-        label: nil,             pos: 2,
-        format: %|@|
+      target: {
+        label: nil, pos: 2,
+        format: %|@|,
       },
       count: {
-        label: "合計数量",      pos: 3,
+        label: "合計数量", pos: 3,
         width: 12,
         format: %|0_ |,
       },
       price: {
-        label: "合計価格",      pos: 4,
+        label: "合計価格", pos: 4,
         format: %|_ ¥* #,##0_ ;_ ¥* -#,##0_ ;_ ¥* "-"_ ;_ @_ |, # NOTE: 末尾の空白要
         width: 17,
       },
@@ -193,8 +193,8 @@ class AmazExcel
     first_col_id = nil
     col = 100
     header[:col].each do |col_id, cell_config|
-      if (cell_config[:pos] < col) then
-        col =  cell_config[:pos]
+      if (cell_config[:pos] < col)
+        col = cell_config[:pos]
         first_col_id = col_id
       end
     end
@@ -205,8 +205,8 @@ class AmazExcel
     last_col_id = nil
     col = 0
     header[:col].each do |col_id, cell_config|
-      if (cell_config[:pos] > col) then
-        col =  cell_config[:pos]
+      if (cell_config[:pos] > col)
+        col = cell_config[:pos]
         last_col_id = col_id
       end
     end
@@ -214,10 +214,10 @@ class AmazExcel
   end
 
   def get_table_range(sheet, header)
-    if (header == HIST_HEADER) then
+    if (header == HIST_HEADER)
       return sheet.Cells[HIST_HEADER[:row][:pos],
                          HIST_HEADER[:col][:name][:pos]].CurrentRegion
-    elsif (header == STAT_HEADER) then
+    elsif (header == STAT_HEADER)
       return sheet.Cells[STAT_HEADER[:row][:pos],
                          STAT_HEADER[:col][:target][:pos]].CurrentRegion
     else
@@ -225,12 +225,12 @@ class AmazExcel
     end
   end
 
-  def get_data_col_range(sheet, header, col_id=nil)
+  def get_data_col_range(sheet, header, col_id = nil)
     table_range = get_table_range(sheet, header)
     col_id = get_first_col_id(header) if col_id == nil
     last_row = table_range.Rows(table_range.Rows.Count).Row
 
-    return sheet.Range(sheet.Cells[header[:row][:pos]+1,
+    return sheet.Range(sheet.Cells[header[:row][:pos] + 1,
                                    header[:col][col_id][:pos]],
                        sheet.Cells[last_row,
                                    header[:col][col_id][:pos]])
@@ -240,33 +240,33 @@ class AmazExcel
     table_range = get_table_range(sheet, header)
     last_row = table_range.Rows(table_range.Rows.Count).Row
 
-    return sheet.Range(sheet.Cells[header[:row][:pos]+1,
+    return sheet.Range(sheet.Cells[header[:row][:pos] + 1,
                                    table_range.Columns(1).Column],
                        sheet.Cells[last_row,
                                    table_range.Columns(table_range.Columns.Count).Column])
-    end
+  end
 
   def insert_picture(sheet, row, col, img_path)
-    fso = WIN32OLE.new('Scripting.FileSystemObject')
+    fso = WIN32OLE.new("Scripting.FileSystemObject")
     img_full_path = fso.GetAbsolutePathName(img_path)
 
     cell_range = sheet.Cells[row, col]
     shape = sheet.Shapes.AddPicture({
-                              FIleName: img_full_path,
-                              LinkToFile: false,
-                              SaveWithDocument: true,
-                              Left: cell_range.Left + IMG_SPACEING,
-                              Top: cell_range.Top + IMG_SPACEING,
-                              Width: 0,
-                              Height: 0
-                            })
+      FIleName: img_full_path,
+      LinkToFile: false,
+      SaveWithDocument: true,
+      Left: cell_range.Left + IMG_SPACEING,
+      Top: cell_range.Top + IMG_SPACEING,
+      Width: 0,
+      Height: 0,
+    })
     shape.ScaleHeight(1, true)
     shape.ScaleWidth(1, true)
 
     scale = 1
-    cell_width = sheet.Cells[1, col].Width - (IMG_SPACEING*2)
-    cell_height = sheet.Cells[row, 1].Height - (IMG_SPACEING*2)
-    if ((cell_width / shape.Width) < (cell_height / shape.Height)) then
+    cell_width = sheet.Cells[1, col].Width - (IMG_SPACEING * 2)
+    cell_height = sheet.Cells[row, 1].Height - (IMG_SPACEING * 2)
+    if ((cell_width / shape.Width) < (cell_height / shape.Height))
       scale = cell_width / shape.Width
     else
       scale = cell_height / shape.Height
@@ -277,8 +277,8 @@ class AmazExcel
     shape.Placement = ExcelConst::XlMoveAndSize
   end
 
-  def insert_header(sheet, header, label_map={})
-    STDERR.print Color.cyan('    - テーブルヘッダを挿入します ')
+  def insert_header(sheet, header, label_map = {})
+    STDERR.print Color.cyan("    - テーブルヘッダを挿入します ")
     STDERR.flush
 
     header[:col].each_value do |cell_config|
@@ -294,14 +294,14 @@ class AmazExcel
   end
 
   def insert_hist_data(sheet, hist_data)
-    STDERR.print Color.cyan('    - 履歴データを挿入します ')
+    STDERR.print Color.cyan("    - 履歴データを挿入します ")
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
       item.each_key do |key|
         cell_range = sheet.Cells[HIST_HEADER[:row][:pos] + 1 + i,
                                  HIST_HEADER[:col][key.to_sym][:pos]]
-        if (key.to_sym == :url) then
+        if (key.to_sym == :url)
           sheet.Hyperlinks.Add({
                                  Anchor: cell_range,
                                  Address: item[key],
@@ -321,8 +321,8 @@ class AmazExcel
       STDERR.flush
 
       # NOTE: for development
-      if (defined? DEBUG) then
-        if (i > 10) then
+      if (defined? DEBUG)
+        if (i > 10)
           break
         end
       end
@@ -331,7 +331,7 @@ class AmazExcel
   end
 
   def format_data(sheet, sheet_name, header)
-    STDERR.print Color.cyan('    - スタイルを設定します ')
+    STDERR.print Color.cyan("    - スタイルを設定します ")
     STDERR.flush
 
     sheet.Name = sheet_name
@@ -342,13 +342,13 @@ class AmazExcel
 
     header[:col].each do |col_id, cell_config|
       col_range = sheet.Columns(header[:col][col_id][:pos])
-      if (cell_config.has_key?(:format)) then
+      if (cell_config.has_key?(:format))
         col_range.NumberFormatLocal = cell_config[:format]
       end
-      if (cell_config.has_key?(:wrap)) then
+      if (cell_config.has_key?(:wrap))
         col_range.WrapText = cell_config[:wrap]
       end
-      if (col_id == :count) then
+      if (col_id == :count)
         col_range.HorizontalAlignment = ExcelConst::XlHAlignRight
       else
         col_range.HorizontalAlignment = ExcelConst::XlHAlignLeft
@@ -361,7 +361,7 @@ class AmazExcel
 
     header[:col].each do |col_id, cell_config|
       col_range = sheet.Columns(header[:col][col_id][:pos])
-      if (cell_config.has_key?(:width)) then
+      if (cell_config.has_key?(:width))
         col_range.ColumnWidth = cell_config[:width]
       end
     end
@@ -369,7 +369,7 @@ class AmazExcel
   end
 
   def set_border(sheet, header)
-    STDERR.print Color.cyan('    - 罫線を設定します ')
+    STDERR.print Color.cyan("    - 罫線を設定します ")
     STDERR.flush
     data_range = get_data_range(sheet, header)
     data_range.Borders(ExcelConst::XlInsideHorizontal).LineStyle = ExcelConst::XlContinuous
@@ -378,14 +378,14 @@ class AmazExcel
   end
 
   def insert_hist_image(sheet, hist_data, img_dir)
-    STDERR.print Color.cyan('    - サムネイルを挿入します ')
+    STDERR.print Color.cyan("    - サムネイルを挿入します ")
     STDERR.flush
 
     hist_data.each_with_index do |item, i|
       cell_range = sheet.Cells[HIST_HEADER[:row][:pos] + 1 + i,
                                HIST_HEADER[:col][:image][:pos]]
-      img_path = img_dir + ("%s.jpg" % [ item["id"] ])
-      if (img_path.exist?) then
+      img_path = img_dir + ("%s.jpg" % [item["id"]])
+      if (img_path.exist?)
         insert_picture(sheet,
                        HIST_HEADER[:row][:pos] + 1 + i,
                        HIST_HEADER[:col][:image][:pos],
@@ -397,8 +397,8 @@ class AmazExcel
       STDERR.flush
 
       # NOTE: for development
-      if (defined? DEBUG) then
-        if (i > 10) then
+      if (defined? DEBUG)
+        if (i > 10)
           break
         end
       end
@@ -408,7 +408,7 @@ class AmazExcel
 
   def config_view(sheet, header)
     get_table_range(sheet, header).AutoFilter
-    sheet.Cells[header[:row][:pos]+1,
+    sheet.Cells[header[:row][:pos] + 1,
                 header[:col][get_first_col_id(header)][:pos]].Select
     @excel_app.freeze_pane
   end
@@ -427,11 +427,11 @@ class AmazExcel
     data_range = get_data_range(sheet, HIST_HEADER)
 
     return {
-      start_row: data_range.Rows(1).Row,
-      last_row: data_range.Rows(data_range.Rows.Count).Row,
-      start_col: data_range.Columns(1).Column,
-      last_col: data_range.Columns(data_range.Columns.Count).Column,
-    }
+             start_row: data_range.Rows(1).Row,
+             last_row: data_range.Rows(data_range.Rows.Count).Row,
+             start_col: data_range.Columns(1).Column,
+             last_col: data_range.Columns(data_range.Columns.Count).Column,
+           }
   end
 
   def insert_stat_data(sheet, param, hist_data_range_info)
@@ -457,20 +457,20 @@ class AmazExcel
 
     category_set.sort.each_with_index do |category, i|
       count_formula = %|=COUNTIF(%s!R%dC%d:R%dC%d,RC[-1])| %
-        [
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:category][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:category][:pos],
-        ]
+                      [
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:category][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:category][:pos],
+                      ]
       price_formula = %|=SUMIF(%s!R%dC%d:R%dC%d,RC[-2],%s!R%dC%d:R%dC%d)| %
-        [
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:category][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:category][:pos],
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
-        ]
+                      [
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:category][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:category][:pos],
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+                      ]
 
       insert_stat_data(sheet,
                        {
@@ -489,21 +489,21 @@ class AmazExcel
 
     (year_start..year_end).each_with_index do |year, i|
       count_formula = %|=SUMPRODUCT(--(YEAR(%s!R%dC%d:R%dC%d)=RC[-1]))| %
-        [
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-        ]
+                      [
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+                      ]
 
       price_formula = %|=SUMPRODUCT((YEAR(%s!R%dC%d:R%dC%d)=RC[-2])*%s!R%dC%d:R%dC%d)| %
-        [
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
-        ]
+                      [
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+                      ]
 
       insert_stat_data(sheet,
                        {
@@ -531,25 +531,25 @@ class AmazExcel
         next if ((year == year_start) && (month < month_start))
         next if ((year == year_end) && (month > month_end))
 
-        year_month = "%02d年%02d月" % [ year, month ]
+        year_month = "%02d年%02d月" % [year, month]
 
         count_formula = %|=SUMPRODUCT(--(TEXT(%s!R%dC%d:R%dC%d,"yyyy年mm月")="%s"))| %
-          [
-           SHEET_NAME[:hist_data],
-           hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-           hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-           year_month,
-          ]
+                        [
+                          SHEET_NAME[:hist_data],
+                          hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+                          hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+                          year_month,
+                        ]
         price_formula = %|=SUMPRODUCT((TEXT(%s!R%dC%d:R%dC%d,"yyyy年mm月")="%s")*%s!R%dC%d:R%dC%d)| %
-          [
-           SHEET_NAME[:hist_data],
-           hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-           hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-           year_month,
-           SHEET_NAME[:hist_data],
-           hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
-           hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
-          ]
+                        [
+                          SHEET_NAME[:hist_data],
+                          hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+                          hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+                          year_month,
+                          SHEET_NAME[:hist_data],
+                          hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+                          hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+                        ]
 
         insert_stat_data(sheet,
                          {
@@ -570,23 +570,23 @@ class AmazExcel
 
     %w(月 火 水 木 金 土 日).each_with_index do |wday, i|
       count_formula = %|=SUMPRODUCT(--(WEEKDAY(%s!R%dC%d:R%dC%d,2)=%d))| %
-        [
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-         i + 1,
-        ]
+                      [
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+                        i + 1,
+                      ]
 
       price_formula = %|=SUMPRODUCT((WEEKDAY(%s!R%dC%d:R%dC%d,2)=%d)*%s!R%dC%d:R%dC%d)| %
-        [
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
-         i + 1,
-         SHEET_NAME[:hist_data],
-         hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
-         hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
-        ]
+                      [
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:date][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:date][:pos],
+                        i + 1,
+                        SHEET_NAME[:hist_data],
+                        hist_data_range_info[:start_row], HIST_HEADER[:col][:price][:pos],
+                        hist_data_range_info[:last_row], HIST_HEADER[:col][:price][:pos],
+                      ]
 
       insert_stat_data(sheet,
                        {
@@ -600,7 +600,7 @@ class AmazExcel
   end
 
   def insert_graph(sheet, stat_type)
-    STDERR.print Color.cyan('    - グラフを挿入します ')
+    STDERR.print Color.cyan("    - グラフを挿入します ")
     STDERR.flush
 
     chart_width = GRAPH_CONFIG[stat_type][:width]
@@ -651,14 +651,14 @@ class AmazExcel
   end
 
   def create_stat_sheet(sheet, stat_type, hist_data, hist_data_range)
-    STDERR.puts Color.bold(Color.green('集計シートを作成します:'))
+    STDERR.puts Color.bold(Color.green("集計シートを作成します:"))
     STDERR.flush
 
     case stat_type
-      when :category_stat; insert_category_stat_data(sheet, hist_data, hist_data_range)
-      when :yearly_stat; insert_yearly_stat_data(sheet, hist_data, hist_data_range)
-      when :monthly_stat; insert_monthly_stat_data(sheet, hist_data, hist_data_range)
-      when :wday_stat; insert_wday_stat_data(sheet, hist_data, hist_data_range)
+    when :category_stat; insert_category_stat_data(sheet, hist_data, hist_data_range)
+    when :yearly_stat; insert_yearly_stat_data(sheet, hist_data, hist_data_range)
+    when :monthly_stat; insert_monthly_stat_data(sheet, hist_data, hist_data_range)
+    when :wday_stat; insert_wday_stat_data(sheet, hist_data, hist_data_range)
     end
 
     format_data(sheet, SHEET_NAME[stat_type], STAT_HEADER)
@@ -672,8 +672,8 @@ class AmazExcel
       return if (defined?(Ocra))
 
       img_dir = Pathname.new(img_dir_path)
-      hist_data = open(json_path) {|io| JSON.load(io) }
-      hist_data.sort_by! {|item| Date.strptime(item["date"], "%Y-%m-%d") }
+      hist_data = open(json_path) { |io| JSON.load(io) }
+      hist_data.sort_by! { |item| Date.strptime(item["date"], "%Y-%m-%d") }
 
       # MEMO: サンプルデータ作成用
       # tmp_hist_data = hist_data
@@ -703,7 +703,7 @@ class AmazExcel
       @excel_app.save(book, excel_path)
 
       STDERR.puts
-      STDERR.puts '完了しました．'
+      STDERR.puts "完了しました．"
       STDERR.puts
     ensure
       @excel_app.quit
@@ -712,29 +712,29 @@ class AmazExcel
 end
 
 def error(message)
-  STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
+  STDERR.puts "[%s] %s" % [Color.bold(Color.red("ERROR")), message]
   exit
 end
 
 def check_arg(args)
-  [ args['-j'], args['-t'] ].each do |path|
-    if not Pathname.new(path).exist? then
+  [args["-j"], args["-t"]].each do |path|
+    if not Pathname.new(path).exist?
       error("「#{path}」は存在しません．amazhist.rb を実行して生成してください．")
     end
   end
 
   puts <<"EOS"
 次の設定で実行します．
-- 履歴情報ファイル          : #{args['-j']}
-- サムネイルディレクトリ    : #{args['-t']}
-- エクセルファイル(出力先)  : #{args['-o']}
+- 履歴情報ファイル          : #{args["-j"]}
+- サムネイルディレクトリ    : #{args["-t"]}
+- エクセルファイル(出力先)  : #{args["-o"]}
 
 続けますか？ [Y/n]
 EOS
   answer = gets().strip
 
-  if ((answer != '') && (answer.downcase != 'y')) then
-    error('中断しました')
+  if ((answer != "") && (answer.downcase != "y"))
+    error("中断しました")
     exit
   end
 end
@@ -745,7 +745,7 @@ begin
   check_arg(args)
 
   amazexcel = AmazExcel.new
-  amazexcel.convert(args['-j'], args['-t'], args['-o'])
+  amazexcel.convert(args["-j"], args["-t"], args["-o"])
 rescue Docopt::Exit => e
   puts e.message
 end

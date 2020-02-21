@@ -38,15 +38,15 @@
 # 「画像認証を要求されたのでリトライします．」と表示された場合は，
 # しばらく時間を空けてください．
 
-require 'date'
-require 'json'
-require 'mechanize'
-require 'nokogiri'
-require 'optparse'
-require 'pathname'
-require 'term/ansicolor'
-require 'uri'
-require 'docopt'
+require "date"
+require "json"
+require "mechanize"
+require "nokogiri"
+require "optparse"
+require "pathname"
+require "term/ansicolor"
+require "uri"
+require "docopt"
 
 DOCOPT = <<DOCOPT
 Usage: amazhist.py [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
@@ -61,8 +61,8 @@ DOCOPT
 # TRACE = 1 # 定義すると，取得した Web ページをデバッグ用に保存します
 # DEBUG = 1 # 定義すると，デバッグ用に保存したファイルからページを読み込みます
 
-if (ENV.has_key?('OCRA_EXECUTABLE'))
-  ENV['SSL_CERT_FILE'] = File.join(File.dirname($0), 'cert.pem')
+if (ENV.has_key?("OCRA_EXECUTABLE"))
+  ENV["SSL_CERT_FILE"] = File.join(File.dirname($0), "cert.pem")
 end
 
 class Color
@@ -70,20 +70,20 @@ class Color
 end
 
 class Amazhist
-  AMAZON_URL      = 'https://www.amazon.co.jp/'
+  AMAZON_URL = "https://www.amazon.co.jp/"
 
-  HIST_URL_FORMAT = 'https://www.amazon.co.jp/gp/css/order-history?' +
-                    'digitalOrders=1&unifiedOrders=1&orderFilter=year-%d&startIndex=%d'
+  HIST_URL_FORMAT = "https://www.amazon.co.jp/gp/css/order-history?" +
+                    "digitalOrders=1&unifiedOrders=1&orderFilter=year-%d&startIndex=%d"
   # NOTE: 下記アドレスの「?」以降を省略すると，時々ページの表示内容が変わり，
   # カテゴリを取得できなくなる
-  ITEM_URL_FORMAT = 'https://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0'
-  RETRY_COUNT     = 5
-  RETRY_WAIT_SEC  = 5
-  COOKIE_DUMP     = 'cookie.txt'
+  ITEM_URL_FORMAT = "https://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0"
+  RETRY_COUNT = 5
+  RETRY_WAIT_SEC = 5
+  COOKIE_DUMP = "cookie.txt"
 
   def initialize(user_info, img_dir_path)
     @mech = Mechanize.new
-    @mech.user_agent_alias = 'Windows Chrome'
+    @mech.user_agent_alias = "Windows Chrome"
     @mech.cookie_jar.clear!
     @user_info = user_info
     @img_dir_path = Pathname.new(img_dir_path)
@@ -93,15 +93,15 @@ class Amazhist
     sleep(RETRY_WAIT_SEC)
   end
 
-  def self.error(message, is_nl=true)
+  def self.error(message, is_nl = true)
     STDERR.puts if (is_nl)
-    STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
+    STDERR.puts "[%s] %s" % [Color.bold(Color.red("ERROR")), message]
     exit
   end
 
-  def self.warn(message, is_nl=true)
+  def self.warn(message, is_nl = true)
     STDERR.puts if (is_nl)
-    STDERR.puts '[%s] %s' % [ Color.bold(Color.yellow('WARN')), message ]
+    STDERR.puts "[%s] %s" % [Color.bold(Color.yellow("WARN")), message]
   end
 
   def cookie_save()
@@ -109,46 +109,46 @@ class Amazhist
   end
 
   def cookie_load()
-    if File.exist?(COOKIE_DUMP) then
+    if File.exist?(COOKIE_DUMP)
       @mech.cookie_jar.load(COOKIE_DUMP)
     end
   end
 
   def hist_url(year, page)
-    return HIST_URL_FORMAT % [ year, 10 * (page-1) ]
+    return HIST_URL_FORMAT % [year, 10 * (page - 1)]
   end
 
   def login(web_page)
     2.times do |i|
-      if !%r|Amazonログイン|.match(web_page.title) then
+      if !%r|Amazonログイン|.match(web_page.title)
         cookie_save()
         return web_page
       end
 
       sleep(1)
 
-      html = Nokogiri::HTML(web_page.body.toutf8, 'UTF-8')
-      if (i == 0) then
-        web_page.form_with(name: 'signIn') do |form|
-          form.field_with(name: 'email').value = @user_info[:id]
-          form.field_with(name: 'password').value = @user_info[:pass]
+      html = Nokogiri::HTML(web_page.body.toutf8, "UTF-8")
+      if (i == 0)
+        web_page.form_with(name: "signIn") do |form|
+          form.field_with(name: "email").value = @user_info[:id]
+          form.field_with(name: "password").value = @user_info[:pass]
         end
-        web_page = web_page.form_with(name: 'signIn').submit
+        web_page = web_page.form_with(name: "signIn").submit
       else
-        if (defined? TRACE) then
-          File.open('debug_login_page.htm', 'w') do |file|
+        if (defined? TRACE)
+          File.open("debug_login_page.htm", "w") do |file|
             file.puts(web_page.body.toutf8)
           end
         end
         break
       end
     end
-    error('ログインに失敗しました．')
+    error("ログインに失敗しました．")
   end
 
   def fetch_html(url, file_path)
-    if (defined? DEBUG) then
-      File.open(file_path, 'r') do |file|
+    if (defined? DEBUG)
+      File.open(file_path, "r") do |file|
         return Nokogiri::HTML(file)
       end
     end
@@ -156,58 +156,58 @@ class Amazhist
     web_page = @mech.get(url)
     web_page = login(web_page)
 
-    if (defined? TRACE) then
-      File.open(file_path, 'w') do |file|
+    if (defined? TRACE)
+      File.open(file_path, "w") do |file|
         file.puts(web_page.body.toutf8)
       end
     end
 
-    return Nokogiri::HTML(web_page.body.toutf8, 'UTF-8')
+    return Nokogiri::HTML(web_page.body.toutf8, "UTF-8")
   end
 
   def get_item_category(item_id, name, offset = 0)
     default_category = {
-      category: '',
-      subcategory: '',
+      category: "",
+      subcategory: "",
     }
     (0...RETRY_COUNT).each do
-      url = ITEM_URL_FORMAT % [ item_id ]
+      url = ITEM_URL_FORMAT % [item_id]
       begin
         page = @mech.get(url)
-        html = Nokogiri::HTML(page.body.toutf8, 'UTF-8')
-        crumb = html.css('div.a-breadcrumb li')
+        html = Nokogiri::HTML(page.body.toutf8, "UTF-8")
+        crumb = html.css("div.a-breadcrumb li")
 
-        if (crumb.size == 0) then
+        if (crumb.size == 0)
           sleep(RETRY_WAIT_SEC)
           next
         end
 
         return {
-          category: crumb[0 + offset].text.strip,
-          subcategory: crumb[2 + offset].text.strip,
-        }
+                 category: crumb[0 + offset].text.strip,
+                 subcategory: crumb[2 + offset].text.strip,
+               }
       rescue Mechanize::ResponseCodeError => e
         case e.response_code
-        when '404'
-          self.class.warn('%s (ASIN: %s) のページが存在しないため，カテゴリが取得できませんでした．' %
-                          [ name , item_id])
+        when "404"
+          self.class.warn("%s (ASIN: %s) のページが存在しないため，カテゴリが取得できませんでした．" %
+                          [name, item_id])
           return default_category
         else
           STDERR.puts(e.message)
-          STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}/|.match(item) }[0])
+          STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}/|.match(item) }[0])
           self.class.warn("リトライします... #{url}", false)
           sleep(RETRY_WAIT_SEC)
         end
       rescue => e
         STDERR.puts(e.message)
-        STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}/|.match(item) }[0])
+        STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}/|.match(item) }[0])
         self.class.warn("リトライします... #{url}", false)
         sleep(RETRY_WAIT_SEC)
       end
     end
 
-    self.class.warn('%s (ASIN: %s) のカテゴリを取得できませんでした．' %
-                    [ name , item_id])
+    self.class.warn("%s (ASIN: %s) のカテゴリを取得できませんでした．" %
+                    [name, item_id])
 
     return default_category
   end
@@ -221,8 +221,8 @@ class Amazhist
       sleep(RETRY_WAIT_SEC)
     end
 
-    self.class.warn('%s (ASIN: %s) の画像を取得できませんでした．' %
-                    [ name , id])
+    self.class.warn("%s (ASIN: %s) の画像を取得できませんでした．" %
+                    [name, id])
   end
 
   def parse_order_normal(html, date)
@@ -230,48 +230,48 @@ class Amazhist
 
     html.xpath('//div[@class="a-box" or @class="a-box shipment" or @class="a-box shipment shipment-is-delivered"]' +
                '//div[@class="a-fixed-right-grid-col a-col-left"]/div/div').each do |item|
-      if !%r/販売|コンディション/.match(item.text) then
+      if !%r/販売|コンディション/.match(item.text)
         next
       end
 
-      name = item.css('div.a-row')[0].text.strip
-      url = URI.join(AMAZON_URL, item.css('div.a-row')[0].css('a')[0][:href]).to_s
+      name = item.css("div.a-row")[0].text.strip
+      url = URI.join(AMAZON_URL, item.css("div.a-row")[0].css("a")[0][:href]).to_s
       id = %r|/gp/product/([^/]+)/|.match(url)[1]
 
       count = 1
-      if (%r|^商品名：(.+)、数量：(\d+)|.match(name)) then
+      if (%r|^商品名：(.+)、数量：(\d+)|.match(name))
         name = $1
         count = $2.to_i
       end
 
-      price_str = item.css('div.a-row span.a-color-price').text.gsub(/¥|,/, '').strip
+      price_str = item.css("div.a-row span.a-color-price").text.gsub(/¥|,/, "").strip
       # NOTE: 「price」は数量分の値段とする
 
       price = %r|\d+|.match(price_str)[0].to_i * count
 
-      seller = ''
+      seller = ""
       (1..2).each do |i|
-        seller_cand = item.css('div.a-row')[i].text
+        seller_cand = item.css("div.a-row")[i].text
         next if (!%r|販売:|.match(seller_cand))
 
-        if (item.css('div.a-row')[i].css('a')[0] != nil) then
-          seller = item.css('div.a-row')[i].css('a')[0].text.strip
+        if (item.css("div.a-row")[i].css("a")[0] != nil)
+          seller = item.css("div.a-row")[i].css("a")[0].text.strip
         else
-          seller = item.css('div.a-row')[i].text.gsub('販売:', '').strip
+          seller = item.css("div.a-row")[i].text.gsub("販売:", "").strip
         end
         break
       end
 
       img_url = nil
       begin
-        img_url = item.css('div.item-view-left-col-inner img')[0][:'data-a-hires']
+        img_url = item.css("div.item-view-left-col-inner img")[0][:'data-a-hires']
       rescue
-        self.class.warn('%s (ASIN: %s) の画像を取得できませんでした．' %
-                        [ name , id])
+        self.class.warn("%s (ASIN: %s) の画像を取得できませんでした．" %
+                        [name, id])
       end
 
-      if (img_url != nil) then
-        img_file_name = '%s.%s' % [ id, %r|\.(\w+)$|.match(img_url)[1] ]
+      if (img_url != nil)
+        img_file_name = "%s.%s" % [id, %r|\.(\w+)$|.match(img_url)[1]]
         save_img(img_url, img_file_name, name, id)
       end
 
@@ -287,7 +287,7 @@ class Amazhist
           category: category_info[:category],
           subcategory: category_info[:subcategory],
           seller: seller,
-          date: date
+          date: date,
         }
       )
     end
@@ -298,43 +298,43 @@ class Amazhist
   def parse_order_digital(html, date, img_url_map)
     item_list = []
 
-    item = html.css('table.sample')
+    item = html.css("table.sample")
 
-    seller_str = item.css('table table tr:nth-child(2) td:nth-child(1)')[0].text.strip
-    price_str = item.css('table table tr:nth-child(2) td:nth-child(2)')[0].text.gsub(/¥|￥|,/, '').strip
+    seller_str = item.css("table table tr:nth-child(2) td:nth-child(1)")[0].text.strip
+    price_str = item.css("table table tr:nth-child(2) td:nth-child(2)")[0].text.gsub(/¥|￥|,/, "").strip
 
-    name = item.css('table table tr:nth-child(2) b')[0].text.strip
-    url = ''
-    id = ''
-    seller = 'Amazon Japan G.K.'
+    name = item.css("table table tr:nth-child(2) b")[0].text.strip
+    url = ""
+    id = ""
+    seller = "Amazon Japan G.K."
     count = 1
     price = %r|\d+|.match(price_str)[0].to_i
 
-    if m = %r|販売: (.+)$|.match(seller_str) then
+    if m = %r|販売: (.+)$|.match(seller_str)
       seller = m[1]
     end
     category_info = {
-      category: '',
-      subcategory: '',
+      category: "",
+      subcategory: "",
     }
 
     begin
-      url = item.css('table table tr:nth-child(2) a')[0][:href]
+      url = item.css("table table tr:nth-child(2) a")[0][:href]
       id = %r|/dp/([^/]+)/|.match(url)[1]
       category_info = get_item_category(id, name, 2)
     rescue
       # NOTE: 商品のページが消失
-      self.class.warn('%s の URL, ID, カテゴリ を取得できませんでした．' % [ name ])
+      self.class.warn("%s の URL, ID, カテゴリ を取得できませんでした．" % [name])
     end
 
-    if (!img_url_map.empty?) then
+    if (!img_url_map.empty?)
       # NOTE: 一律 img_url_map.values.first でもいいはずだけど自信ないので
       img_url = img_url_map.has_key?(id) ? img_url_map[id] : img_url_map.values.first
-      img_file_name = '%s.%s' % [ id, %r|\.(\w+)$|.match(img_url)[1] ]
+      img_file_name = "%s.%s" % [id, %r|\.(\w+)$|.match(img_url)[1]]
       save_img(img_url, img_file_name, name, id)
     else
-      self.class.warn('%s (ASIN: %s) の画像を取得できませんでした．' %
-                      [ name , id])
+      self.class.warn("%s (ASIN: %s) の画像を取得できませんでした．" %
+                      [name, id])
     end
 
     item_list.push(
@@ -347,7 +347,7 @@ class Amazhist
         category: category_info[:category],
         subcategory: category_info[:subcategory],
         seller: seller,
-        date: date
+        date: date,
       }
     )
 
@@ -357,22 +357,22 @@ class Amazhist
   def parse_order_page(url, date, img_url_map)
     (0...RETRY_COUNT).each do
       begin
-        html = fetch_html(url, 'debug_order_page.htm')
+        html = fetch_html(url, "debug_order_page.htm")
 
         error_message = html.xpath('//div[@class="a-box a-alert a-alert-warning a-spacing-large"]' +
                                    '//h4[@class="a-alert-heading"]')
-        if (!error_message.empty?) then
+        if (!error_message.empty?)
           raise StandardError.new(error_message.text.strip)
         end
 
-        if (!html.xpath('//b[contains(text(), "デジタル注文")]').empty?) then
+        if (!html.xpath('//b[contains(text(), "デジタル注文")]').empty?)
           return parse_order_digital(html, date, img_url_map)
         else
           return parse_order_normal(html, date)
         end
       rescue => e
         STDERR.puts(e.message)
-        STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}/|.match(item) }[0])
+        STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}/|.match(item) }[0])
         self.class.warn("リトライします... #{url}", false)
         sleep(RETRY_WAIT_SEC)
       end
@@ -384,55 +384,55 @@ class Amazhist
   def parse_order_list_page(html)
     item_list = []
 
-    html.css('div.order').each do |order|
+    html.css("div.order").each do |order|
       begin
-        date_text = order.css('div.order-info span.value')[0].text.strip
-        date = Date.strptime(date_text, '%Y年%m月%d日')
+        date_text = order.css("div.order-info span.value")[0].text.strip
+        date = Date.strptime(date_text, "%Y年%m月%d日")
 
         # Kindle とかの場合はここで画像を取得しておく
         img_url_map = {}
-        order.css('div.a-fixed-left-grid').each do |item|
-          url = URI.join(AMAZON_URL, item.css('div.a-row')[0].css('a')[0][:href]).to_s
+        order.css("div.a-fixed-left-grid").each do |item|
+          url = URI.join(AMAZON_URL, item.css("div.a-row")[0].css("a")[0][:href]).to_s
           id = %r|/gp/product/([^/]+)/|.match(url)[1]
 
           begin
-            img_url = item.css('div.item-view-left-col-inner img')[0][:'data-a-hires']
+            img_url = item.css("div.item-view-left-col-inner img")[0][:'data-a-hires']
             img_url_map[id] = img_url if (img_url != nil)
           rescue
             # do nothing
           end
         end
 
-        detail_url = order.css('a').select{|e| e.text =~ /注文の詳細/}[0][:href]
+        detail_url = order.css("a").select { |e| e.text =~ /注文の詳細/ }[0][:href]
         order_item = parse_order_page(detail_url, date, img_url_map)
 
-        if (order_item.empty?) then
-          self.class.warn('注文詳細を読み取れませんでした．')
-          self.class.warn('URL: %s' % [ detail_url], false)
+        if (order_item.empty?)
+          self.class.warn("注文詳細を読み取れませんでした．")
+          self.class.warn("URL: %s" % [detail_url], false)
         end
         item_list.concat(order_item)
-        STDERR.print '.'
+        STDERR.print "."
         STDERR.flush
       rescue Mechanize::Error => e
-        self.class.warn('URL: %s' % [ e.page.uri.to_s ])
+        self.class.warn("URL: %s" % [e.page.uri.to_s])
         STDERR.puts(e.message)
-        STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}|.match(item) }[0])
+        STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}|.match(item) }[0])
       rescue => e
         STDERR.puts(e.message)
-        STDERR.puts(e.backtrace.select{|item| %r|#{__FILE__}|.match(item) }[0])
+        STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}|.match(item) }[0])
       ensure
         sleep(1)
       end
     end
 
     return {
-      item_list: item_list,
-      is_last: html.css('div.pagination-full li.a-last').css('a').empty?
-    }
+             item_list: item_list,
+             is_last: html.css("div.pagination-full li.a-last").css("a").empty?,
+           }
   end
 
   def get_item_list_by_page(year, page)
-    html = fetch_html(hist_url(year, page), 'debug_order_list_page.htm')
+    html = fetch_html(hist_url(year, page), "debug_order_list_page.htm")
     return parse_order_list_page(html)
   end
 
@@ -441,8 +441,8 @@ class Amazhist
 
     page = 1
     loop do
-      STDERR.print '%s Year %d page %d ' % [ Color.bold(Color.green('Parsing')), 
-                                           year, page ]
+      STDERR.print "%s Year %d page %d " % [Color.bold(Color.green("Parsing")),
+                                            year, page]
       STDERR.flush
       page_info = get_item_list_by_page(year, page)
       item_list.concat(page_info[:item_list])
@@ -456,7 +456,7 @@ class Amazhist
 end
 
 def error(message)
-  STDERR.puts '[%s] %s' % [ Color.bold(Color.red('ERROR')), message ]
+  STDERR.puts "[%s] %s" % [Color.bold(Color.red("ERROR")), message]
   exit
 end
 
@@ -482,16 +482,16 @@ def check_arg(args)
 - ログイン ID               : #{args[:amazon_id]}
 - ログイン PASS             : #{args[:amazon_pass]}
 
-- 履歴情報ファイル          : #{args['-j']}
-- サムネイルディレクトリ    : #{args['-t']}
+- 履歴情報ファイル          : #{args["-j"]}
+- サムネイルディレクトリ    : #{args["-t"]}
 
 続けますか？ [Y/n]
 EOS
 
   answer = gets().strip
 
-  if ((answer != '') && (answer.downcase != 'y')) then
-    error('中断しました')
+  if ((answer != "") && (answer.downcase != "y"))
+    error("中断しました")
     exit
   end
 end
@@ -505,19 +505,18 @@ end
 def login_info(arg)
   return if (defined?(Ocra))
 
-  if (ENV['amazon_id'] == nil) then
-    arg[:amazon_id] = request_input('Amazon ログイン ID  ')
+  if (ENV["amazon_id"] == nil)
+    arg[:amazon_id] = request_input("Amazon ログイン ID  ")
   else
-    arg[:amazon_id] = ENV['amazon_id']
+    arg[:amazon_id] = ENV["amazon_id"]
   end
 
-  if (ENV['amazon_pass'] == nil) then
-    arg[:amazon_pass] = request_input('Amazon ログイン PASS')
+  if (ENV["amazon_pass"] == nil)
+    arg[:amazon_pass] = request_input("Amazon ログイン PASS")
   else
-    arg[:amazon_pass] = ENV['amazon_pass']
+    arg[:amazon_pass] = ENV["amazon_pass"]
   end
 end
-
 
 begin
   args = Docopt::docopt(DOCOPT)
@@ -525,13 +524,13 @@ begin
   login_info(args)
   check_arg(args)
 
-  FileUtils.mkdir_p(args['-t'])
+  FileUtils.mkdir_p(args["-t"])
   amazhist = Amazhist.new(
     {
       id: args[:amazon_id],     # Amazon の ID
       pass: args[:amazon_pass], # Amazon の パスワード
     },
-    args['-t']
+    args["-t"]
   )
 
   exit if (defined?(Ocra))
@@ -541,11 +540,11 @@ begin
     item_list.concat(amazhist.get_item_list(year))
   end
 
-  File.open(args['-j'], 'w') do |file|
+  File.open(args["-j"], "w") do |file|
     file.puts JSON.pretty_generate(item_list)
   end
 
-  STDERR.puts Color.bold(Color.blue('Writing output file'))
+  STDERR.puts Color.bold(Color.blue("Writing output file"))
 rescue Docopt::Exit => e
   puts e.message
 end
