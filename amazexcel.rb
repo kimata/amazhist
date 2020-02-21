@@ -723,6 +723,12 @@ end
 def check_arg(arg)
   return if (defined?(Ocra))
 
+  [ arg[:json_file_path], arg[:img_dir_path] ].each do |path|
+    if not Pathname.new(path).exist? then
+      error("「#{path}」は存在しません．amazhist.rb を実行して生成してください．")
+    end
+  end
+
   puts <<"EOS"
 次の設定で実行します．
 - 履歴情報ファイル          : #{arg[:json_file_path]}
