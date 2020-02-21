@@ -9,7 +9,9 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 【出力サンプル】
 
-![出力サンプル](sample.png)
+![出力サンプル1](sample1.png)
+
+![出力サンプル2](sample2.png)
 
 # スクリプト構成
 
@@ -75,7 +77,7 @@ Linux の場合は次のようにします．
 
     export amazon_id="Amazon のログイン ID"
     export amazon_pass="Amazon のパスワード"
-
+p
 Windows の PowerShell の場合は次のようにします．
 
     $env:amazon_id="Amazon のログイン ID"
