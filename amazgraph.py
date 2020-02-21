@@ -208,7 +208,19 @@ def create_graph_impl(
     x_off = xpos - np.abs(min(xpos))
     colors = matplotlib.cm.hsv(x_off.astype(float) / x_off.max())
 
-    ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, zsort="max")
+    # NOTE: 値が 0 の場合は表示しない
+    mask = dz > 0.0
+
+    ax.bar3d(
+        xpos[mask],
+        ypos[mask],
+        zpos[mask],
+        dx,
+        dy,
+        dz[mask],
+        color=colors[mask],
+        zsort="max",
+    )
 
     ax.view_init(elev=60, azim=45)
 
@@ -227,8 +239,8 @@ def create_by_year_price_hist_graph(file_path, item_list, year_list):
     ypos = ypos.flatten() - 0.5
     zpos = np.zeros_like(xpos)
 
-    dx = np.ones_like(xpos) * (PRICE_HIST_MAX / PRICE_HIST_BIN) * 0.5
-    dy = np.ones_like(ypos) * 0.5
+    dx = (PRICE_HIST_MAX / PRICE_HIST_BIN) * 0.5
+    dy = 0.5
     dz = np.array(
         list(map(lambda hist: hist[0], by_year_price_hist.values()))
     ).flatten()
@@ -275,9 +287,8 @@ def create_by_year_category_count_graph(file_path, item_list, year_list, categor
     ypos = ypos.flatten() - 0.5
     zpos = np.zeros_like(xpos)
 
-    dx = np.ones_like(zpos) * 0.5
-    dy = np.ones_like(zpos) * 0.5
-
+    dx = 0.5
+    dy = 0.5
     dz = np.array(
         [
             [by_year_category_count[year][category] for category in category_list]
@@ -323,9 +334,8 @@ def create_by_year_subcategory_count_graph(file_path, item_list, year_list, cate
     ypos = ypos.flatten() - 0.5
     zpos = np.zeros_like(xpos)
 
-    dx = np.ones_like(zpos) * 0.5
-    dy = np.ones_like(zpos) * 0.5
-
+    dx = 0.5
+    dy = 0.5
     dz = np.array(
         [
             [
