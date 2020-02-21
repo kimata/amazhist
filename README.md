@@ -15,7 +15,7 @@ amazhist は，Amazon の買い物履歴情報を取得し，Excel 形式で出�
 
 # スクリプト構成
 
-次の 2 つのスクリプトから構成されています．
+次の 3 つのスクリプトから構成されています．
 
 ## `amazhist.rb`
 
@@ -24,6 +24,11 @@ Amazon にアクセスし，購入履歴情報を収集し，JSON ファイル�
 ## `amazexcel.rb`
 
 JSON ファイルから，Excel ファイルを生成します．
+
+## `amazgraph.py`
+
+JSON ファイルから，時系列分析グラフを生成します．PNG 画像が生成されます．
+
 
 # 実行方法
 
@@ -77,7 +82,7 @@ Linux の場合は次のようにします．
 
     export amazon_id="Amazon のログイン ID"
     export amazon_pass="Amazon のパスワード"
-p
+
 Windows の PowerShell の場合は次のようにします．
 
     $env:amazon_id="Amazon のログイン ID"
