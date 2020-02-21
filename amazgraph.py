@@ -225,7 +225,7 @@ def create_graph_impl(
     if func is not None:
         func(plt, ax, font_regular)
 
-    plt.savefig(file_path)
+    plt.savefig(file_path, bbox_inches='tight')
 
 
 def create_by_year_price_hist_graph(file_path, item_list, year_list):
