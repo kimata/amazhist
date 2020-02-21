@@ -183,7 +183,7 @@ def create_graph_impl(
     zlabel,
     func=None,
 ):
-    fig = plt.figure(figsize=(12.0, 10.0), dpi=300)
+    fig = plt.figure(figsize=(12.0, 10.0), dpi=150)
     ax = fig.add_subplot(111, projection="3d")
 
     font_regular = matplotlib.font_manager.FontProperties(fname=FONT_REGULAR_FILE)
@@ -204,7 +204,9 @@ def create_graph_impl(
 
     # NOTE: X 軸の値によって色を変える
     x_off = xpos - np.abs(min(xpos))
-    colors = matplotlib.cm.hsv(x_off.astype(float) / x_off.max())
+    colors = matplotlib.cm.gist_rainbow(x_off.astype(float) / x_off.max())
+
+    ax.view_init(elev=30, azim=-60)
 
     # NOTE: 値が 0 の場合は表示しない
     mask = dz > 0.0
@@ -220,12 +222,10 @@ def create_graph_impl(
         zsort="max",
     )
 
-    ax.view_init(elev=60, azim=45)
-
     if func is not None:
         func(plt, ax, font_regular)
 
-    plt.savefig(file_path, bbox_inches='tight')
+    plt.savefig(file_path, bbox_inches="tight")
 
 
 def create_by_year_price_hist_graph(file_path, item_list, year_list):
@@ -253,9 +253,11 @@ def create_by_year_price_hist_graph(file_path, item_list, year_list):
                 PRICE_HIST_MAX + int(PRICE_HIST_MAX / PRICE_HIST_BIN * 2),
                 int(PRICE_HIST_MAX / PRICE_HIST_BIN * 2),
             ),
-            ha="left",
+            ha="right",
+            rotation=40,
             fontproperties=font,
         )
+        plt.yticks(ha="left")
 
     create_graph_impl(
         file_path,
@@ -298,10 +300,11 @@ def create_by_year_category_count_graph(file_path, item_list, year_list, categor
         plt.xticks(
             range(0, len(category_list)),
             category_list,
-            ha="left",
-            rotation=-40,
+            ha="right",
+            rotation=40,
             fontproperties=font,
         )
+        plt.yticks(ha="left")
 
     create_graph_impl(
         file_path,
@@ -344,14 +347,15 @@ def create_by_year_subcategory_count_graph(file_path, item_list, year_list, cate
         ]
     ).flatten()
 
-    def format_xaxis(plt, ax, font_prop):
+    def custom_format(plt, ax, font_prop):
         plt.xticks(
             range(0, len(subcategory_list)),
             subcategory_list,
-            ha="left",
-            rotation=-40,
+            ha="right",
+            rotation=40,
             fontproperties=font_prop,
         )
+        plt.yticks(ha="left")
 
     create_graph_impl(
         file_path,
@@ -366,7 +370,7 @@ def create_by_year_subcategory_count_graph(file_path, item_list, year_list, cate
         None,
         "年",
         "数量",
-        format_xaxis,
+        custom_format,
     )
 
 
