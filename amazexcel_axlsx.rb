@@ -14,6 +14,18 @@ require 'term/ansicolor'
 require 'axlsx'
 require 'pathname'
 require 'rmagick'
+require 'docopt'
+
+DOCOPT = <<DOCOPT
+Usage: amazexcel_axlsx.py [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
+
+Amazon の購入履歴データから，時系列グラフを生成します．
+
+Options:
+  -j <json_path>    履歴情報存を記録した JSON ファイルのパス  (required) [default: amazhist.json]
+  -t <img_path>     サムネイル画像が保存されているディレクトリのパス (required) [default: img]
+  -o <excel_path>   生成する Excel ファイルのパス (required) [default: amazhist.xlsx]
+DOCOPT
 
 # DEBUG = 1
 
@@ -798,24 +810,8 @@ def error(message)
   exit
 end
 
-def show_usage()
-  puts <<"EOS"
-■使い方
-#{File.basename(__FILE__)} -j amazhist.json -t img -o amazhist.xlsx
-
-引数の意味は以下なります．省略した場合，上記と同じ内容で実行します．
-
-  -j 履歴情報を保存する JSON ファイルのパス (amazhist.rb にて生成したもの)
-
-  -t サムネイル画像が保存されているディレクトリのパス (amazhist.rb にて生成したもの)
-
-  -o 生成する Excel ファイルのパス
-
-EOS
-end
-
-def check_arg(arg)
-  [ arg[:json_file_path], arg[:img_dir_path] ].each do |path|
+def check_arg(args)
+  [ args['-j'], args['-t'] ].each do |path|
     if not Pathname.new(path).exist? then
       error("「#{path}」は存在しません．amazhist.rb を実行して生成してください．")
     end
@@ -823,9 +819,9 @@ def check_arg(arg)
 
   puts <<"EOS"
 次の設定で実行します．
-- 履歴情報ファイル          : #{arg[:json_file_path]}
-- サムネイルディレクトリ    : #{arg[:img_dir_path]}
-- エクセルファイル(出力先)  : #{arg[:excel_file_path]}
+- 履歴情報ファイル          : #{args['-j']}
+- サムネイルディレクトリ    : #{args['-t']}
+- エクセルファイル(出力先)  : #{args['-o']}
 
 続けますか？ [Y/n]
 EOS
@@ -837,28 +833,16 @@ EOS
   end
 end
 
-ARG_DEFAULT = {
-  json_file_path:   'amazhist.json',
-  img_dir_path:     'img',
-  excel_file_path:  'amazhist.xlsx'
-}
+begin
+  args = Docopt::docopt(DOCOPT)
 
-params = ARGV.getopts('j:t:o:h')
+  check_arg(args)
 
-if (params['h']) then
-  show_usage()
-  exit
+  amazexcel = AmazExcel.new
+  amazexcel.convert(args['-j'], args['-t'], args['-o'])
+rescue Docopt::Exit => e
+  puts e.message
 end
-
-arg = ARG_DEFAULT.dup
-arg[:json_file_path]    = params['j'] if params['j']
-arg[:img_dir_path]      = params['t'] if params['t']
-arg[:excel_file_path]   = params['o'] if params['o']
-
-check_arg(arg)
-
-amazexcel = AmazExcel.new
-amazexcel.convert(arg[:json_file_path], arg[:img_dir_path], arg[:excel_file_path])
 
 # Local Variables:
 # coding: utf-8

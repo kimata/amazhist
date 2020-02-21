@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Usage: amazgraph.py [-h] [-j <json_path>]
+"""
+Usage: amazgraph.py [-h] [-j <json_path>]
 
 Amazon の購入履歴データから，時系列グラフを生成します．
 
 Options:
-  -j <json_path>    (required) [default: amazhist.json]
+  -j <json_path>    履歴情報存を記録した JSON ファイルのパス  (required) [default: amazhist.json]
 """
 from docopt import docopt
 

@@ -11,4 +11,6 @@ gem 'term-ansicolor'
 gem 'axlsx'
 gem 'rmagick'
 
+gem 'docopt'
+
 

@@ -46,6 +46,17 @@ require 'optparse'
 require 'pathname'
 require 'term/ansicolor'
 require 'uri'
+require 'docopt'
+
+DOCOPT = <<DOCOPT
+Usage: amazhist.py [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
+
+Amazon の購入履歴データを収集します．
+
+Options:
+  -j <json_path>    履歴情報存を記録する JSON ファイルのパス  (required) [default: amazhist.json]
+  -t <img_path>     サムネイル画像が保存するディレクトリのパス (required) [default: img]
+DOCOPT
 
 # TRACE = 1 # 定義すると，取得した Web ページをデバッグ用に保存します
 # DEBUG = 1 # 定義すると，デバッグ用に保存したファイルからページを読み込みます
@@ -463,16 +474,16 @@ def show_usage()
 EOS
 end
 
-def check_arg(arg)
+def check_arg(args)
   return if (defined?(Ocra))
 
   puts <<"EOS"
 次の設定で実行します．
-- ログイン ID               : #{arg[:amazon_id]}
-- ログイン PASS             : #{arg[:amazon_pass]}
+- ログイン ID               : #{args[:amazon_id]}
+- ログイン PASS             : #{args[:amazon_pass]}
 
-- 履歴情報ファイル          : #{arg[:json_file_path]}
-- サムネイルディレクトリ    : #{arg[:img_dir_path]}
+- 履歴情報ファイル          : #{args['-j']}
+- サムネイルディレクトリ    : #{args['-t']}
 
 続けますか？ [Y/n]
 EOS
@@ -507,46 +518,37 @@ def login_info(arg)
   end
 end
 
-ARG_DEFAULT = {
-  json_file_path:   'amazhist.json',
-  img_dir_path:     'img',
-}
 
-params = ARGV.getopts('j:t:o:h')
+begin
+  args = Docopt::docopt(DOCOPT)
 
-if (params['h']) then
-  show_usage()
-  exit
+  login_info(args)
+  check_arg(args)
+
+  FileUtils.mkdir_p(args['-t'])
+  amazhist = Amazhist.new(
+    {
+      id: args[:amazon_id],     # Amazon の ID
+      pass: args[:amazon_pass], # Amazon の パスワード
+    },
+    args['-t']
+  )
+
+  exit if (defined?(Ocra))
+
+  item_list = []
+  (2000..(Date.today.year)).each do |year|
+    item_list.concat(amazhist.get_item_list(year))
+  end
+
+  File.open(args['-j'], 'w') do |file|
+    file.puts JSON.pretty_generate(item_list)
+  end
+
+  STDERR.puts Color.bold(Color.blue('Writing output file'))
+rescue Docopt::Exit => e
+  puts e.message
 end
-
-arg = ARG_DEFAULT.dup
-arg[:json_file_path]    = params['j'] if params['j']
-arg[:img_dir_path]      = params['t'] if params['t']
-
-login_info(arg)
-check_arg(arg)
-
-FileUtils.mkdir_p(arg[:img_dir_path])
-amazhist = Amazhist.new(
-  {
-    id: arg[:amazon_id],        # Amazon の ID
-    pass: arg[:amazon_pass],    # Amazon の パスワード
-  },
-  arg[:img_dir_path]
-)
-
-exit if (defined?(Ocra))
-
-item_list = []
-(2000..(Date.today.year)).each do |year|
-  item_list.concat(amazhist.get_item_list(year))
-end
-
-File.open(arg[:json_file_path], 'w') do |file|
-  file.puts JSON.pretty_generate(item_list)
-end
-
-STDERR.puts Color.bold(Color.blue('Writing output file'))
 
 # Local Variables:
 # coding: utf-8
