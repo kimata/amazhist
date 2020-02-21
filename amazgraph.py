@@ -22,11 +22,9 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 import re
-from functools import partial
 
 import os
 import sys
-import pprint
 
 FONT_REGULAR_FILE = "./font/mplus-2p-regular.ttf"
 FONT_BOLD_FILE = "./font/mplus-2p-bold.ttf"
@@ -103,7 +101,7 @@ def get_category_list(item_list):
         category_map.keys(),
     )
 
-    # NOTE: プロットしたときに見やすくなるように，総量が多い順でソート
+    # NOTE: プロットしたときに見やすくなるように，総数が多い順でソート
     return sorted(
         category_list, key=lambda category: category_map[category], reverse=True
     )
@@ -144,7 +142,7 @@ def get_subcategory_list(item_list, category):
         subcategory_map.keys(),
     )
 
-    # NOTE: プロットしたときに見やすくなるように，総量が多い順でソート
+    # NOTE: プロットしたときに見やすくなるように，総数が多い順でソート
     return sorted(
         subcategory_list,
         key=lambda subcategory: subcategory_map[subcategory],
