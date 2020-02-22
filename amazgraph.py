@@ -385,7 +385,7 @@ def create_graph(json_path):
     if not os.path.exists(json_path):
         error("「{0:s}」は存在しません．amazhist.rb を実行して生成してください．".format(json_path))
 
-    item_list = json.load(open(json_path, "r"))
+    item_list = json.load(open(json_path, "r", encoding="utf-8"))
     print("    - 履歴件数: {0:,}".format(len(item_list)))
 
     # NOTE: 購入が無い年もグラフ化したいので，購入履歴がある年の上下限を取得する
