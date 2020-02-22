@@ -477,10 +477,12 @@ end
 def check_arg(args)
   return if (defined?(Ocra))
 
+  pass = args[:amazon_pass][0] + ('*' * (args[:amazon_pass].length-2)) + args[:amazon_pass][-1]
+
   puts <<"EOS"
 次の設定で実行します．
 - ログイン ID               : #{args[:amazon_id]}
-- ログイン PASS             : #{args[:amazon_pass]}
+- ログイン PASS             : #{pass} (伏字処理済)
 
 - 履歴情報ファイル          : #{args["-j"]}
 - サムネイルディレクトリ    : #{args["-t"]}
