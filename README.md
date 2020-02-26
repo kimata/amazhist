@@ -51,6 +51,7 @@ JSON ファイルから，時系列分析グラフを生成します．PNG 画�
 次のコマンドを実行して必要なモジュールをインストールします．Ubuntu 以外の場合は，最初のコマンドを適宜読み替えてください．
 
 `sudo apt-get install libmagick++-dev`
+
 `bundle install`
 
 ### 実行
