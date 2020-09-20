@@ -38,7 +38,7 @@ JSON ファイルから，時系列分析グラフを生成します．PNG 画�
 `amazhist.exe` を実行した後，`amazexcel.exe` 実行します．
 
 `amazhist.exe` を実行すると Amazon のログイン ID とパスワードを聞かれますので，入力します．
-その後実行して良いか聞かれるので問題無ければ ENTER を押します．`amazhist.exe` も同様にします．
+その後実行して良いか聞かれるので問題無ければ ENTER を押します．`amazexcel.exe` も同様に実行します．
 
 購入履歴の量次第ですが，`amazhist.exe` の実行には数時間，`amazexcel.exe` の実行には十分程度かかります．
 
@@ -50,7 +50,7 @@ JSON ファイルから，時系列分析グラフを生成します．PNG 画�
 
 次のコマンドを実行して必要なモジュールをインストールします．Ubuntu 以外の場合は，最初のコマンドを適宜読み替えてください．
 
-`sudo apt-get install libmagick++-dev`
+`sudo apt-get install libmagick++-dev ruby-bundler`
 
 `bundle install`
 
