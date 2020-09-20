@@ -498,10 +498,14 @@ EOS
   end
 end
 
-def request_input(label)
+def request_input(label, echo=true)
   print "#{label}: "
 
-  return gets().strip
+  if (echo) then
+    return gets().strip
+  else
+    return (STDIN.noecho &:gets).strip
+  end
 end
 
 def login_info(arg)
@@ -514,7 +518,7 @@ def login_info(arg)
   end
 
   if (ENV["amazon_pass"] == nil)
-    arg[:amazon_pass] = request_input("Amazon ログイン PASS")
+    arg[:amazon_pass] = request_input("Amazon ログイン PASS", false)
   else
     arg[:amazon_pass] = ENV["amazon_pass"]
   end
