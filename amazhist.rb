@@ -120,7 +120,7 @@ class Amazhist
 
   def login(web_page)
     2.times do |i|
-      if !%r|Amazonログイン|.match(web_page.title)
+      if !%r|Amazonサインイン|.match(web_page.title)
         cookie_save()
         return web_page
       end
