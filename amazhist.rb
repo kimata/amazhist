@@ -46,6 +46,7 @@ require "optparse"
 require "pathname"
 require "term/ansicolor"
 require "uri"
+require "open-uri"
 require "docopt"
 
 DOCOPT = <<DOCOPT
@@ -114,15 +115,37 @@ class Amazhist
     end
   end
 
+  def item_list_store(item_list, year, page)
+    File.open(ITEM_LIST_DUMP, "w+b") do |dump|
+      dump.write(Marshal.dump({ item_list: item_list, year: year, page: page }))
+    end
+  end
+
+  def item_list_load()
+    begin
+      File.open(ITEM_LIST_DUMP, "r+b") do |dump|
+        return Marshal.load(dump)
+      end
+    rescue
+      return { item_list: [], year: YEAR_START, page: 0 }
+    end
+  end
+
   def hist_url(year, page)
     return HIST_URL_FORMAT % [year, 10 * (page - 1)]
   end
 
   def login(web_page)
-    2.times do |i|
+    6.times do |i|
       if !%r|Amazonサインイン|.match(web_page.title)
         cookie_save()
         return web_page
+      end
+
+      if (defined? TRACE)
+        File.open("debug_login_page_#{i}.htm", "w") do |file|
+          file.puts(web_page.body.toutf8)
+        end
       end
 
       sleep(1)
@@ -131,15 +154,35 @@ class Amazhist
       if (i == 0)
         web_page.form_with(name: "signIn") do |form|
           form.field_with(name: "email").value = @user_info[:id]
-          form.field_with(name: "password").value = @user_info[:pass]
         end
         web_page = web_page.form_with(name: "signIn").submit
-      else
-        if (defined? TRACE)
-          File.open("debug_login_page.htm", "w") do |file|
-            file.puts(web_page.body.toutf8)
-          end
+      elsif (i == 1)
+        web_page.form_with(name: "signIn") do |form|
+          form.field_with(name: "password").value = @user_info[:pass]
+          form.checkbox_with(:name => "rememberMe").check
         end
+        web_page = web_page.form_with(name: "signIn").submit
+      elsif (i >= 2)
+        begin
+          captcha_url = web_page.search("#auth-captcha-image").attribute("src")
+          File.open("captcha.png", "w+b") do |img|
+            URI.open(captcha_url) do |data|
+              img.write(data.read)
+            end
+          end
+          captcha = request_input("\ncaptcha.png に書かれている文字列を入力してください．")
+          web_page.form_with(name: "signIn") do |form|
+            form.field_with(name: "password").value = @user_info[:pass]
+            form.field_with(name: "guess").value = captcha
+            form.checkbox_with(:name => "rememberMe").check
+          end
+          web_page = web_page.form_with(name: "signIn").submit
+        rescue => e
+          STDERR.puts(e.message)
+          STDERR.puts(e.backtrace)
+          error("不明なエラーです．")
+        end
+      else
         break
       end
     end
