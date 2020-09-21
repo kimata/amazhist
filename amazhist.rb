@@ -46,6 +46,7 @@ require "optparse"
 require "pathname"
 require "term/ansicolor"
 require "uri"
+require "logger"
 require "open-uri"
 require "docopt"
 
@@ -81,11 +82,15 @@ class Amazhist
   RETRY_COUNT = 5
   RETRY_WAIT_SEC = 5
   COOKIE_DUMP = "cookie.txt"
+  MECH_LOG_FILE = "mechanize.log"
 
   def initialize(user_info, img_dir_path)
     @mech = Mechanize.new
     @mech.user_agent_alias = "Windows Chrome"
     @mech.cookie_jar.clear!
+    if (defined? TRACE)
+      @mech.log = Logger.new(MECH_LOG_FILE)
+    end
     @user_info = user_info
     @img_dir_path = Pathname.new(img_dir_path)
 
