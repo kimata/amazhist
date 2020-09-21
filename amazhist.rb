@@ -244,13 +244,13 @@ class Amazhist
         else
           STDERR.puts(e.message)
           STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}/|.match(item) }[0])
-          self.class.warn("リトライします... #{url}", false)
+          self.class.warn("リトライします...(1) #{url}", false)
           sleep(RETRY_WAIT_SEC)
         end
       rescue => e
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}/|.match(item) }[0])
-        self.class.warn("リトライします... #{url}", false)
+        self.class.warn("リトライします...(2) #{url}", false)
         sleep(RETRY_WAIT_SEC)
       end
     end
@@ -422,7 +422,7 @@ class Amazhist
       rescue => e
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}/|.match(item) }[0])
-        self.class.warn("リトライします... #{url}", false)
+        self.class.warn("リトライします...(3) #{url}", false)
         sleep(RETRY_WAIT_SEC)
       end
     end
