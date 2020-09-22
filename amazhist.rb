@@ -632,7 +632,7 @@ EOS
     year_item_list = amazhist.get_item_list(year, page)
 
     # NOTE: 前年までの内容をキャッシュファイルに書き出す
-    amazhist.item_list_store(item_list, year-1, 0)
+    amazhist.item_list_store(item_list, year, 0)
 
     item_list.concat(year_item_list)
     page = 1
