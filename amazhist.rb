@@ -473,7 +473,7 @@ class Amazhist
         STDERR.puts(e.message)
         STDERR.puts(e.backtrace.select { |item| %r|#{__FILE__}|.match(item) }[0])
       ensure
-        sleep(1)
+        sleep(2)
       end
     end
 
