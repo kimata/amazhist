@@ -535,7 +535,7 @@ def check_arg(args)
 
   pass = args[:amazon_pass][0] + ("*" * (args[:amazon_pass].length - 2)) + args[:amazon_pass][-1]
 
-  puts <<"EOS"
+  info(<<"EOS")
 次の設定で実行します．
 - ログイン ID               : #{args[:amazon_id]}
 - ログイン PASS             : #{pass} (伏字処理済)
@@ -552,6 +552,22 @@ EOS
     error("中断しました")
     exit
   end
+
+  info(<<"EOS")
+開始します．
+
+【注意事項】
+- 画像認証に対応する必要がある場合があります．
+  メッセージが表示されましたら，画像ファイルに書かれている文字を入力
+  お願いします．購入履歴が多い場合，何度か必要になります．
+
+- Amazon のロボット対策を回避する為，時間がかかります．
+  他のことをしてお待ち願います．
+
+- スクリプトが途中で終了した場合，読み取りが完了したページ以降から
+  再開します．最初からやり直す場合，item_list.cache を削除してください．
+
+EOS
 end
 
 def request_input(label, echo=true)
