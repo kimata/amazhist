@@ -563,8 +563,8 @@ EOS
 - Amazon のロボット対策を回避する為，時間がかかります．
   他のことをしてお待ち願います．
 
-- スクリプトが途中で終了した場合，読み取りが完了したページ以降から
-  再開します．最初からやり直す場合，item_list.cache を削除してください．
+- スクリプトが途中で終了した場合，読み取りが完了した年から再開します．
+  最初からやり直す場合，item_list.cache を削除してください．
 
 EOS
 end
@@ -620,7 +620,7 @@ begin
 
   if ((cache[:year] > Amazhist::YEAR_START) || (cache[:page] > 1))
     info(<<"EOS")
-#{cache[:year]}年 #{cache[:page]} ページ目までのデータはキャッシュファイル(#{Amazhist::ITEM_LIST_DUMP})の内容を利用し，
+#{cache[:year]-1}年 までのデータはキャッシュファイル(#{Amazhist::ITEM_LIST_DUMP})の内容を利用し，
 データの取得を再開します．
 
 EOS
