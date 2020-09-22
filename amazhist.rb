@@ -81,7 +81,9 @@ class Amazhist
   ITEM_URL_FORMAT = "https://www.amazon.co.jp/gp/product/%s?*Version*=1&*entries*=0"
   RETRY_COUNT = 5
   RETRY_WAIT_SEC = 5
+  YEAR_START = 2000
   COOKIE_DUMP = "cookie.txt"
+  ITEM_LIST_DUMP = "item_list.cache"
   MECH_LOG_FILE = "mechanize.log"
 
   def initialize(user_info, img_dir_path)
@@ -486,16 +488,16 @@ class Amazhist
     return parse_order_list_page(html)
   end
 
-  def get_item_list(year)
+  def get_item_list(year, page = 1)
     item_list = []
 
-    page = 1
     loop do
       STDERR.print "%s Year %d page %d " % [Color.bold(Color.green("Parsing")),
                                             year, page]
       STDERR.flush
       page_info = get_item_list_by_page(year, page)
       item_list.concat(page_info[:item_list])
+      item_list_store(item_list, year, page)
       STDERR.puts
       break if page_info[:is_last]
       page += 1
@@ -595,9 +597,22 @@ begin
 
   exit if (defined?(Ocra))
 
-  item_list = []
-  (2000..(Date.today.year)).each do |year|
-    item_list.concat(amazhist.get_item_list(year))
+  cache = amazhist.item_list_load()
+  item_list = cache[:item_list]
+
+  if ((cache[:year] > Amazhist::YEAR_START) || (cache[:page] > 1))
+    info(<<"EOS")
+#{cache[:year]}年 #{cache[:page]} ページ目までのデータはキャッシュファイル(#{Amazhist::ITEM_LIST_DUMP})の内容を利用し，
+データの取得を再開します．
+
+EOS
+  end
+
+  year_start = cache[:year]
+  page = cache[:page] + 1
+  (year_start..(Date.today.year)).each do |year|
+    item_list.concat(amazhist.get_item_list(year, page))
+    page = 1
   end
 
   File.open(args["-j"], "w") do |file|
