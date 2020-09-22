@@ -533,7 +533,7 @@ end
 def check_arg(args)
   return if (defined?(Ocra))
 
-  pass = args[:amazon_pass][0] + ('*' * (args[:amazon_pass].length-2)) + args[:amazon_pass][-1]
+  pass = args[:amazon_pass][0] + ("*" * (args[:amazon_pass].length - 2)) + args[:amazon_pass][-1]
 
   puts <<"EOS"
 次の設定で実行します．
