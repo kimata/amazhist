@@ -570,13 +570,16 @@ EOS
 EOS
 end
 
-def request_input(label, echo=true)
+def request_input(label, echo = true)
   print "#{label}: "
 
-  if (echo) then
-    return gets().strip
-  else
-    return (STDIN.noecho &:gets).strip
+  loop do
+    if (echo)
+      input = gets().strip
+    else
+      input = (STDIN.noecho &:gets).strip
+    end
+    return input if (input != "")
   end
 end
 
