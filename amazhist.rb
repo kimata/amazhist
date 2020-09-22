@@ -497,7 +497,6 @@ class Amazhist
       STDERR.flush
       page_info = get_item_list_by_page(year, page)
       item_list.concat(page_info[:item_list])
-      item_list_store(item_list, year, page)
       STDERR.puts
       break if page_info[:is_last]
       page += 1
@@ -630,7 +629,12 @@ EOS
   year_start = cache[:year]
   page = cache[:page] + 1
   (year_start..(Date.today.year)).each do |year|
-    item_list.concat(amazhist.get_item_list(year, page))
+    year_item_list = amazhist.get_item_list(year, page)
+
+    # NOTE: 前年までの内容をキャッシュファイルに書き出す
+    amazhist.item_list_store(item_list, year-1, 0)
+
+    item_list.concat(year_item_list)
     page = 1
   end
 
