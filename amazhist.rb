@@ -505,6 +505,10 @@ class Amazhist
   end
 end
 
+def info(message)
+  STDERR.puts "[%s] %s" % [Color.bold(Color.yellow("INFO")), message]
+end
+
 def error(message)
   STDERR.puts "[%s] %s" % [Color.bold(Color.red("ERROR")), message]
   exit
