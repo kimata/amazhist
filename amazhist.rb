@@ -500,7 +500,7 @@ class Amazhist
       STDERR.puts
       break if page_info[:is_last]
       page += 1
-      sleep 30
+      sleep(2)
     end
     return item_list
   end
