@@ -454,8 +454,9 @@ class Amazhist
           end
         end
 
-        detail_url = order.css("a").select { |e| e.text =~ /注文の詳細/ }[0][:href]
+        detail_url = order.css("a").select { |e| e.text =~ /注文内容を表示/ }[0][:href]
         detail_url = (@mech.page.uri.merge(detail_url)).to_s
+
         order_item = parse_order_page(detail_url, date, img_url_map)
 
         if (order_item.empty?)
