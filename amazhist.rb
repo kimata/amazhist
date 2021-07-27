@@ -88,7 +88,7 @@ class Amazhist
 
   def initialize(user_info, img_dir_path)
     @mech = Mechanize.new
-    @mech.user_agent_alias = "Windows Chrome"
+    @mech.user_agent_alias = "Windows IE 9"
     @mech.redirection_limit = 4
     @mech.cookie_jar.clear!
     if (defined? TRACE)
