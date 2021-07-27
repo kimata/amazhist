@@ -51,7 +51,7 @@ require "open-uri"
 require "docopt"
 
 DOCOPT = <<DOCOPT
-Usage: amazhist.py [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
+Usage: amazhist.rb [-h] [-j <json_path>] [-t <img_path>] [-o <excel_path>]
 
 Amazon の購入履歴データを収集します．
 
