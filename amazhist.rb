@@ -204,6 +204,10 @@ class Amazhist
       end
     end
 
+    if (defined? TRACE)
+      STDERR.puts("\nFetch URL: #{url}")
+    end
+
     web_page = @mech.get(url)
     web_page = login(web_page)
 
