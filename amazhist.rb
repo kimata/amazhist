@@ -39,6 +39,7 @@
 # しばらく時間を空けてください．
 
 require "date"
+require "kconv"
 require "json"
 require "mechanize"
 require "nokogiri"
