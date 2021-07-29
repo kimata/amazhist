@@ -1,0 +1,1 @@
+ocra  .\amazhist.rb .\cert.pem --dll ruby_builtin_dlls\libssp-0.dll --dll ruby_builtin_dlls\libgmp-10.dll --dll ruby_builtin_dlls\libssl-1_1.dll
