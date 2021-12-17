@@ -361,6 +361,9 @@ class AmazExcel
     pad_image_path = (Pathname(@tmp_dir_path) + Pathname(img_path).basename).sub_ext(".png")
     pad_image.write(pad_image_path)
 
+    image.destroy!
+    pad_image.destroy!
+
     return {
              path: pad_image_path,
              width: width,
